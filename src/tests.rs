@@ -10,7 +10,7 @@ use super::*;
 // Fortran code because we're using f64s everywhere.
 // ... Although it could also be that we're doing something slightly wrong
 // somewhere, so it might be worth double-checking eventually.
-const FLOATING_POINT_TOLERANCE: f64 = 0.00001; // 0.001%
+const FLOATING_POINT_TOLERANCE: f64 = std::f32::EPSILON as f64; // roughly 0.000011920929 %
 
 #[cfg(test)]
 mod tests {
@@ -92,61 +92,61 @@ mod tests {
     #[test]
     fn test_multiband_01_impulse_response() {
         let output = multiband_01();
-        test_f64_error_within_tolerance(output.impulse_response[0], -0.5753406789E-02);
-        test_f64_error_within_tolerance(output.impulse_response[1], 0.9902641177E-03);
-        test_f64_error_within_tolerance(output.impulse_response[2], 0.7573357783E-02);
-        test_f64_error_within_tolerance(output.impulse_response[3], -0.6514116656E-02);
-        test_f64_error_within_tolerance(output.impulse_response[4], 0.1396050397E-01);
-        test_f64_error_within_tolerance(output.impulse_response[5], 0.2295166254E-02);
-        test_f64_error_within_tolerance(output.impulse_response[6], -0.1999405399E-01);
-        test_f64_error_within_tolerance(output.impulse_response[7], 0.7136960514E-02);
-        test_f64_error_within_tolerance(output.impulse_response[8], -0.3965735435E-01);
-        test_f64_error_within_tolerance(output.impulse_response[9], 0.1126007363E-01);
-        test_f64_error_within_tolerance(output.impulse_response[10], 0.6623364240E-01);
-        test_f64_error_within_tolerance(output.impulse_response[11], -0.1049720775E-01);
-        test_f64_error_within_tolerance(output.impulse_response[12], 0.8513614535E-01);
-        test_f64_error_within_tolerance(output.impulse_response[13], -0.1202498823E+00);
-        test_f64_error_within_tolerance(output.impulse_response[14], -0.2967857718E+00);
-        test_f64_error_within_tolerance(output.impulse_response[15], 0.3041091561E+00);
+        test_f64_error_within_tolerance(output.impulse_response[0].into(), -0.5753406789E-02);
+        test_f64_error_within_tolerance(output.impulse_response[1].into(), 0.9902641177E-03);
+        test_f64_error_within_tolerance(output.impulse_response[2].into(), 0.7573357783E-02);
+        test_f64_error_within_tolerance(output.impulse_response[3].into(), -0.6514116656E-02);
+        test_f64_error_within_tolerance(output.impulse_response[4].into(), 0.1396050397E-01);
+        test_f64_error_within_tolerance(output.impulse_response[5].into(), 0.2295166254E-02);
+        test_f64_error_within_tolerance(output.impulse_response[6].into(), -0.1999405399E-01);
+        test_f64_error_within_tolerance(output.impulse_response[7].into(), 0.7136960514E-02);
+        test_f64_error_within_tolerance(output.impulse_response[8].into(), -0.3965735435E-01);
+        test_f64_error_within_tolerance(output.impulse_response[9].into(), 0.1126007363E-01);
+        test_f64_error_within_tolerance(output.impulse_response[10].into(), 0.6623364240E-01);
+        test_f64_error_within_tolerance(output.impulse_response[11].into(), -0.1049720775E-01);
+        test_f64_error_within_tolerance(output.impulse_response[12].into(), 0.8513614535E-01);
+        test_f64_error_within_tolerance(output.impulse_response[13].into(), -0.1202498823E+00);
+        test_f64_error_within_tolerance(output.impulse_response[14].into(), -0.2967857718E+00);
+        test_f64_error_within_tolerance(output.impulse_response[15].into(), 0.3041091561E+00);
     }
 
     #[test]
     fn test_multiband_01_deviations() {
         let output = multiband_01();
-        test_f64_error_within_tolerance(output.deviations[0], 0.00151311723);
-        test_f64_error_within_tolerance(output.deviations[1], 0.01513117179);
-        test_f64_error_within_tolerance(output.deviations[2], 0.00151311723);
+        test_f64_error_within_tolerance(output.deviations[0].into(), 0.00151311723);
+        test_f64_error_within_tolerance(output.deviations[1].into(), 0.01513117179);
+        test_f64_error_within_tolerance(output.deviations[2].into(), 0.00151311723);
     }
 
     #[test]
-    fn test_multiband_01_deviation_dbss() {
+    fn test_multiband_01_deviation_dbs() {
         let output = multiband_01();
         let deviation_dbs = output.deviation_dbs.unwrap();
-        test_f64_error_within_tolerance(deviation_dbs[0], -56.40254974365);
-        test_f64_error_within_tolerance(deviation_dbs[1], 0.13044279814);
-        test_f64_error_within_tolerance(deviation_dbs[2], -56.40254974365);
+        test_f64_error_within_tolerance(deviation_dbs[0].into(), -56.40254974365);
+        test_f64_error_within_tolerance(deviation_dbs[1].into(), 0.13044279814);
+        test_f64_error_within_tolerance(deviation_dbs[2].into(), -56.40254974365);
     }
 
     #[test]
     fn test_multiband_01_extremal_frequencies() {
         let output = multiband_01();
-        test_f64_error_within_tolerance(output.extremal_frequencies[0], 0.0000000);
-        test_f64_error_within_tolerance(output.extremal_frequencies[1], 0.0273438);
-        test_f64_error_within_tolerance(output.extremal_frequencies[2], 0.0527344);
-        test_f64_error_within_tolerance(output.extremal_frequencies[3], 0.0761719);
-        test_f64_error_within_tolerance(output.extremal_frequencies[4], 0.0937500);
-        test_f64_error_within_tolerance(output.extremal_frequencies[5], 0.1000000);
-        test_f64_error_within_tolerance(output.extremal_frequencies[6], 0.2000000);
-        test_f64_error_within_tolerance(output.extremal_frequencies[7], 0.2195313);
-        test_f64_error_within_tolerance(output.extremal_frequencies[8], 0.2527344);
-        test_f64_error_within_tolerance(output.extremal_frequencies[9], 0.2839844);
-        test_f64_error_within_tolerance(output.extremal_frequencies[10], 0.3132812);
-        test_f64_error_within_tolerance(output.extremal_frequencies[11], 0.3386719);
-        test_f64_error_within_tolerance(output.extremal_frequencies[12], 0.3500000);
-        test_f64_error_within_tolerance(output.extremal_frequencies[13], 0.4250000);
-        test_f64_error_within_tolerance(output.extremal_frequencies[14], 0.4328125);
-        test_f64_error_within_tolerance(output.extremal_frequencies[15], 0.4503906);
-        test_f64_error_within_tolerance(output.extremal_frequencies[16], 0.4796875);
+        test_f64_error_within_tolerance(output.extremal_frequencies[0].into(), 0.000000000);
+        test_f64_error_within_tolerance(output.extremal_frequencies[1].into(), 0.027343750);
+        test_f64_error_within_tolerance(output.extremal_frequencies[2].into(), 0.052734375);
+        test_f64_error_within_tolerance(output.extremal_frequencies[3].into(), 0.076171875);
+        test_f64_error_within_tolerance(output.extremal_frequencies[4].into(), 0.093750000);
+        test_f64_error_within_tolerance(output.extremal_frequencies[5].into(), 0.100000001);
+        test_f64_error_within_tolerance(output.extremal_frequencies[6].into(), 0.200000003);
+        test_f64_error_within_tolerance(output.extremal_frequencies[7].into(), 0.219531253);
+        test_f64_error_within_tolerance(output.extremal_frequencies[8].into(), 0.252734363);
+        test_f64_error_within_tolerance(output.extremal_frequencies[9].into(), 0.283984363);
+        test_f64_error_within_tolerance(output.extremal_frequencies[10].into(), 0.313281238);
+        test_f64_error_within_tolerance(output.extremal_frequencies[11].into(), 0.338671863);
+        test_f64_error_within_tolerance(output.extremal_frequencies[12].into(), 0.349999994);
+        test_f64_error_within_tolerance(output.extremal_frequencies[13].into(), 0.425000012);
+        test_f64_error_within_tolerance(output.extremal_frequencies[14].into(), 0.432812512);
+        test_f64_error_within_tolerance(output.extremal_frequencies[15].into(), 0.450390637);
+        test_f64_error_within_tolerance(output.extremal_frequencies[16].into(), 0.479687512);
     }
 
     #[test]
@@ -165,49 +165,49 @@ mod tests {
     #[test]
     fn test_differentiator_01_impulse_response() {
         let output = differentiator_01();
-        test_f64_error_within_tolerance(output.impulse_response[0], -0.6257381756E-03);
-        test_f64_error_within_tolerance(output.impulse_response[1], 0.8548910846E-03);
-        test_f64_error_within_tolerance(output.impulse_response[2], -0.4238411202E-03);
-        test_f64_error_within_tolerance(output.impulse_response[3], 0.3989883116E-03);
-        test_f64_error_within_tolerance(output.impulse_response[4], -0.4351424286E-03);
-        test_f64_error_within_tolerance(output.impulse_response[5], 0.5008199369E-03);
-        test_f64_error_within_tolerance(output.impulse_response[6], -0.5971363280E-03);
-        test_f64_error_within_tolerance(output.impulse_response[7], 0.7333782269E-03);
-        test_f64_error_within_tolerance(output.impulse_response[8], -0.9301801911E-03);
-        test_f64_error_within_tolerance(output.impulse_response[9], 0.1226891065E-02);
-        test_f64_error_within_tolerance(output.impulse_response[10], -0.1701220521E-02);
-        test_f64_error_within_tolerance(output.impulse_response[11], 0.2527206670E-02);
-        test_f64_error_within_tolerance(output.impulse_response[12], -0.4160370212E-02);
-        test_f64_error_within_tolerance(output.impulse_response[13], 0.8130028844E-02);
-        test_f64_error_within_tolerance(output.impulse_response[14], -0.2253980562E-01);
-        test_f64_error_within_tolerance(output.impulse_response[15], 0.2026662678E+00);
+        test_f64_error_within_tolerance(output.impulse_response[0].into(), -0.6257381756E-03);
+        test_f64_error_within_tolerance(output.impulse_response[1].into(), 0.8548910846E-03);
+        test_f64_error_within_tolerance(output.impulse_response[2].into(), -0.4238411202E-03);
+        test_f64_error_within_tolerance(output.impulse_response[3].into(), 0.3989883116E-03);
+        test_f64_error_within_tolerance(output.impulse_response[4].into(), -0.4351424286E-03);
+        test_f64_error_within_tolerance(output.impulse_response[5].into(), 0.5008199369E-03);
+        test_f64_error_within_tolerance(output.impulse_response[6].into(), -0.5971363280E-03);
+        test_f64_error_within_tolerance(output.impulse_response[7].into(), 0.7333782269E-03);
+        test_f64_error_within_tolerance(output.impulse_response[8].into(), -0.9301801911E-03);
+        test_f64_error_within_tolerance(output.impulse_response[9].into(), 0.1226891065E-02);
+        test_f64_error_within_tolerance(output.impulse_response[10].into(), -0.1701220521E-02);
+        test_f64_error_within_tolerance(output.impulse_response[11].into(), 0.2527206670E-02);
+        test_f64_error_within_tolerance(output.impulse_response[12].into(), -0.4160370212E-02);
+        test_f64_error_within_tolerance(output.impulse_response[13].into(), 0.8130028844E-02);
+        test_f64_error_within_tolerance(output.impulse_response[14].into(), -0.2253980562E-01);
+        test_f64_error_within_tolerance(output.impulse_response[15].into(), 0.2026662678E+00);
     }
 
     #[test]
     fn test_differentiator_01_deviations() {
         let output = differentiator_01();
-        test_f64_error_within_tolerance(output.deviations[0], 0.00619235216);
+        test_f64_error_within_tolerance(output.deviations[0].into(), 0.00619235216);
     }
 
     #[test]
     fn test_differentiator_01_extremal_frequencies() {
         let output = differentiator_01();
-        test_f64_error_within_tolerance(output.extremal_frequencies[0], 0.0015625);
-        test_f64_error_within_tolerance(output.extremal_frequencies[1], 0.0328125);
-        test_f64_error_within_tolerance(output.extremal_frequencies[2], 0.0656250);
-        test_f64_error_within_tolerance(output.extremal_frequencies[3], 0.0984374);
-        test_f64_error_within_tolerance(output.extremal_frequencies[4], 0.1312499);
-        test_f64_error_within_tolerance(output.extremal_frequencies[5], 0.1656251);
-        test_f64_error_within_tolerance(output.extremal_frequencies[6], 0.1984377);
-        test_f64_error_within_tolerance(output.extremal_frequencies[7], 0.2312503);
-        test_f64_error_within_tolerance(output.extremal_frequencies[8], 0.2640629);
-        test_f64_error_within_tolerance(output.extremal_frequencies[9], 0.2968756);
-        test_f64_error_within_tolerance(output.extremal_frequencies[10], 0.3296882);
-        test_f64_error_within_tolerance(output.extremal_frequencies[11], 0.3625008);
-        test_f64_error_within_tolerance(output.extremal_frequencies[12], 0.3953134);
-        test_f64_error_within_tolerance(output.extremal_frequencies[13], 0.4281261);
-        test_f64_error_within_tolerance(output.extremal_frequencies[14], 0.4593762);
-        test_f64_error_within_tolerance(output.extremal_frequencies[15], 0.4859388);
-        test_f64_error_within_tolerance(output.extremal_frequencies[16], 0.5000000);
+        test_f64_error_within_tolerance(output.extremal_frequencies[0].into(), 0.001562500);
+        test_f64_error_within_tolerance(output.extremal_frequencies[1].into(), 0.032812502);
+        test_f64_error_within_tolerance(output.extremal_frequencies[2].into(), 0.065624975);
+        test_f64_error_within_tolerance(output.extremal_frequencies[3].into(), 0.098437443);
+        test_f64_error_within_tolerance(output.extremal_frequencies[4].into(), 0.131249934);
+        test_f64_error_within_tolerance(output.extremal_frequencies[5].into(), 0.165625066);
+        test_f64_error_within_tolerance(output.extremal_frequencies[6].into(), 0.198437691);
+        test_f64_error_within_tolerance(output.extremal_frequencies[7].into(), 0.231250316);
+        test_f64_error_within_tolerance(output.extremal_frequencies[8].into(), 0.264062941);
+        test_f64_error_within_tolerance(output.extremal_frequencies[9].into(), 0.296875566);
+        test_f64_error_within_tolerance(output.extremal_frequencies[10].into(), 0.329688191);
+        test_f64_error_within_tolerance(output.extremal_frequencies[11].into(), 0.362500817);
+        test_f64_error_within_tolerance(output.extremal_frequencies[12].into(), 0.395313442);
+        test_f64_error_within_tolerance(output.extremal_frequencies[13].into(), 0.428126067);
+        test_f64_error_within_tolerance(output.extremal_frequencies[14].into(), 0.459376186);
+        test_f64_error_within_tolerance(output.extremal_frequencies[15].into(), 0.485938787);
+        test_f64_error_within_tolerance(output.extremal_frequencies[16].into(), 0.500000000);
     }
 }
