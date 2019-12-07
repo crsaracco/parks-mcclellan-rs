@@ -1,4 +1,7 @@
-mod tests;
+#[cfg(test)] mod tests;
+
+pub mod dense_grid;
+use dense_grid::DenseGrid;
 
 const PI: f64 = std::f64::consts::PI;
 const PI2: f64 = PI * 2.0;
@@ -39,50 +42,17 @@ pub struct ParksMcclellanOutput {
     pub extremal_frequencies: Vec<f32>,
 }
 
-struct DenseGrid {
-    buffer: Vec<f32>,
-}
-
-impl DenseGrid {
-    pub fn new(filter_length: usize, grid_density: usize) -> Self {
-        Self {
-            buffer: vec![0.0; (filter_length+1)*((grid_density+1)/2)+1], // TODO: suspicious size...
-        }
-    }
-
-    pub fn set(&mut self, index: usize, value: f32) {
-        self.buffer[index] = value;
-    }
-
-    pub fn get(&self, index: usize) -> f32 {
-        self.buffer[index]
-    }
-}
-
 // Note: l_grid is defaulted to 16 in the Parks-McClellan paper.
 fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> ParksMcclellanOutput {
     // The filter length must be greater than zero, and less/equal to NF_MAX.
     assert!(n_filt >= 3);
     assert!(n_filt <= NF_MAX);
 
-    // n_bands must be greater than 0.
-    let n_bands = bands.len();
-    assert!(n_bands > 0);
+    // Must have at least one band
+    assert!(bands.len() > 0);
 
     // l_grid must be greater than 0.
     assert!(l_grid > 0);
-
-    // The algorithm uses these internally ...
-    let mut edges = vec![0.0f32; n_bands * 2];
-    let mut fx = vec![0.0f32; n_bands];
-    let mut wtx = vec![0.0f32; n_bands];
-    // ... so let's fill it up with our `bands` input. TODO: refactor.
-    for (i, band) in bands.iter().enumerate() {
-        edges[i*2] = band.lower_edge;
-        edges[i*2+1] = band.upper_edge;
-        fx[i] = band.desired_value;
-        wtx[i] = band.weight;
-    }
 
     let neg = match j_type {
         JType::MultipleBand => 0,
@@ -90,65 +60,51 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         JType::Hilbert => 1,
     };
 
-    let mut n_odd = n_filt / 2;
-    n_odd = n_filt - 2 * n_odd;
+    let n_odd = if n_filt % 2 == 0 { 0 } else { 1 };
 
-    let mut nfcns = n_filt / 2;
-
+    // The number of unique coefficients in the resulting filter
+    // (half will be reflected around the midpoint, but we need to include the center for odd N)
+    let mut num_coefficients = n_filt / 2;
     if n_odd == 1 && neg == 0 {
-        nfcns += 1;
+        num_coefficients += 1;
     }
+    let num_coefficients = num_coefficients;
 
     // Set up the dense grid.
-    let mut grid = DenseGrid::new(n_filt, l_grid);
-    grid.set(0, edges[0]);
-    let mut del_f = (l_grid as f32) * (nfcns as f32);
-    del_f = 0.5 / del_f;
-
-    if neg != 0 {
-        if edges[0] < del_f {
-            grid.set(0, del_f);
-        }
-    }
+    let grid = DenseGrid::new(&bands, n_filt, l_grid, num_coefficients, neg);
 
     let mut des = [0.0f32; 1045];
     let mut wt = [0.0f32; 1045];
 
     let mut j = 1;
-    let mut L = 1;
     let mut l_band = 1;
+    loop {
+        let f_up = bands[l_band-1].upper_edge;
+        let new_grid_value = grid.get(j-1)+grid.del_f();
 
-    'b: loop {
-        let f_up = edges[L]; // edges[L+1-1]
-        let mut temp: f32;
-        'a: loop {
-            temp = grid.get(j-1);
-            // Calculate the desired magnitude response,
-            // and the weight function on the grid.
-            des[j-1] = eff(temp, &fx, &wtx, l_band, j_type);
-            wt[j-1] = wate(temp, &fx, &wtx, l_band, j_type);
-            j += 1;
-            grid.set(j-1, temp+del_f);
-            if grid.get(j-1) > f_up {
-                break 'a;
-            }
+        if new_grid_value > f_up {
+            l_band = l_band + 1;
         }
 
-        grid.set(j-2, f_up);
-        des[j-2] = eff(f_up, &fx, &wtx, l_band, j_type);
-        wt[j-2] = wate(f_up, &fx, &wtx, l_band, j_type);
-        l_band = l_band + 1;
-        L += 2;
-        if l_band > n_bands {
-            break 'b;
+        if new_grid_value <= f_up {
+            des[j-1] = eff(&bands, grid.get(j-1), l_band, j_type);
+            wt[j-1] = wate(&bands, grid.get(j-1), l_band, j_type);
+        } else {
+            des[j-1] = eff(&bands, f_up, l_band-1, j_type);
+            wt[j-1] = wate(&bands, f_up, l_band-1, j_type);
         }
-        grid.set(j-1, edges[L-1]);
+
+        if new_grid_value > f_up && l_band > bands.len() {
+            break;
+        }
+        j += 1;
     }
+    j += 1;
 
     let mut n_grid = j-1;
 
     if neg == n_odd {
-        if grid.get(n_grid-1) > (0.5 - del_f) {
+        if grid.get(n_grid-1) > (0.5 - grid.del_f()) {
             n_grid = n_grid - 1;
         }
     }
@@ -183,49 +139,49 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 
     // Initial guess for the extremal frequencies: equally spaced along the grid.
     let mut iext = [0; 66];
-    let temp = ((n_grid-1) as f32) / (nfcns as f32);
-    for j in 1..(nfcns+1) {
+    let temp = ((n_grid-1) as f32) / (num_coefficients as f32);
+    for j in 1..(num_coefficients +1) {
         let xt = j-1;
         iext[j-1] = ((xt as f32) * temp + 1.0) as i64;
     }
-    iext[nfcns] = n_grid as i64; // iext[nfcns+1-1]
-    let nm1 = nfcns - 1;
-    let nz = nfcns + 1;
+    iext[num_coefficients] = n_grid as i64; // iext[nfcns+1-1]
+    let nm1 = num_coefficients - 1;
+    let nz = num_coefficients + 1;
 
     // Call the remez exchange algorithm to do the approximation problem.
     let mut alpha = [0.0f32; 66];
     let mut dev: f64 = 0.0;
-    remez(nfcns, &mut iext, n_grid, &mut grid, &wt, &mut des, &mut alpha, &mut dev);
+    remez(num_coefficients, &mut iext, n_grid, &grid, &wt, &des, &mut alpha, &mut dev);
 
     // Calculate the impulse response.
     let mut h = [0.0f32; 66];
     if neg == 0 {
         if n_odd == 0 {
-            h[0] = 0.25 * alpha[nfcns-1];
+            h[0] = 0.25 * alpha[num_coefficients -1];
             for j in 2..(nm1+1) {
                 let nzmj = nz-j;
-                let nf2j = nfcns+2-j;
+                let nf2j = num_coefficients +2-j;
                 h[j-1] = 0.25 * (alpha[nzmj-1] + alpha[nf2j-1]);
             }
-            h[nfcns-1] = 0.5 * alpha[0] + 0.25 * alpha[1];
+            h[num_coefficients -1] = 0.5 * alpha[0] + 0.25 * alpha[1];
         } else {
             for j in 1..(nm1+1) {
                 let nzmj = nz-j;
                 h[j-1] = 0.5 * alpha[nzmj-1];
             }
-            h[nfcns-1] = alpha[0];
+            h[num_coefficients -1] = alpha[0];
         }
     } else {
         if n_odd == 0 {
-            h[0] = 0.25 * alpha[nfcns-1];
+            h[0] = 0.25 * alpha[num_coefficients -1];
             for j in 2..(nm1+1) {
                 let nzmj = nz-j;
-                let nf2j = nfcns+2-j;
+                let nf2j = num_coefficients +2-j;
                 h[j-1] = 0.25 * (alpha[nzmj-1] - alpha[nf2j-1]);
             }
-            h[nfcns-1] = 0.5 * alpha[0] - 0.25 * alpha[1];
+            h[num_coefficients -1] = 0.5 * alpha[0] - 0.25 * alpha[1];
         } else {
-            h[0] = 0.25 * alpha[nfcns-1];
+            h[0] = 0.25 * alpha[num_coefficients -1];
             if nm1 > 0 {
                 // Fortran treats indexing to the "zeroth" element
                 // as a no-op, I guess? (remember it's 1-indexed)
@@ -233,10 +189,10 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
             }
             for j in 3..(nm1+1) {
                 let nzmj = nz-j;
-                let nf3j = nfcns+3-j;
+                let nf3j = num_coefficients +3-j;
                 h[j-1] = 0.25 * (alpha[nzmj-1] - alpha[nf3j-1]);
             }
-            h[nfcns-1] = 0.5 * alpha[0] - 0.25 * alpha[2];
+            h[num_coefficients -1] = 0.5 * alpha[0] - 0.25 * alpha[2];
             h[nz-1] = 0.0;
         }
     }
@@ -264,7 +220,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     parks_mcclellan_output.filter_length = n_filt;
     println!();
     println!("***** IMPULSE RESPONSE *****");
-    for j in 1..(nfcns+1) {
+    for j in 1..(num_coefficients +1) {
         println!("{:e}", h[j-1]);
         parks_mcclellan_output.impulse_response.push(h[j-1]);
     }
@@ -273,35 +229,35 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         parks_mcclellan_output.impulse_response.push(0.0);
     }
 
-    for k in 0..n_bands {
+    for k in 0..bands.len() {
         println!("Band {}:", k);
-        println!("    lower edge: {}", edges[2*k]);
-        parks_mcclellan_output.lower_band_edges.push(edges[2*k]);
-        println!("    upper edge: {}", edges[2*k+1]);
-        parks_mcclellan_output.upper_band_edges.push(edges[2*k+1]);
+        println!("    lower edge: {}", bands[k].lower_edge);
+        parks_mcclellan_output.lower_band_edges.push(bands[k].lower_edge);
+        println!("    upper edge: {}", bands[k].upper_edge);
+        parks_mcclellan_output.upper_band_edges.push(bands[k].upper_edge);
         match j_type {
             JType::MultipleBand => {
-                println!("    desired value: {}", fx[k]);
-                parks_mcclellan_output.desired_values.push(fx[k]);
+                println!("    desired value: {}", bands[k].desired_value);
+                parks_mcclellan_output.desired_values.push(bands[k].desired_value);
             },
             JType::Differentiator => {
-                println!("    desired slope: {}", fx[k]);
-                parks_mcclellan_output.desired_values.push(fx[k]);
+                println!("    desired slope: {}", bands[k].desired_value);
+                parks_mcclellan_output.desired_values.push(bands[k].desired_value);
             },
             JType::Hilbert => {
-                println!("    desired value: {}", fx[k]);
-                parks_mcclellan_output.desired_values.push(fx[k]);
+                println!("    desired value: {}", bands[k].desired_value);
+                parks_mcclellan_output.desired_values.push(bands[k].desired_value);
             },
         }
-        println!("    weighting: {}", wtx[k]);
-        parks_mcclellan_output.weightings.push(wtx[k]);
+        println!("    weighting: {}", bands[k].weight);
+        parks_mcclellan_output.weightings.push(bands[k].weight);
 
-        let deviation = (dev/(wtx[k] as f64)) as f32;
+        let deviation = (dev/(bands[k].weight as f64)) as f32;
         println!("    deviation: {}", deviation);
         parks_mcclellan_output.deviations.push(deviation);
         match j_type {
             JType::MultipleBand => {
-                let deviation_db: f32 = 20.0 * (deviation + fx[k]).log10();
+                let deviation_db: f32 = 20.0 * (deviation + bands[k].desired_value).log10();
                 println!("    deviation in dB: {}", deviation_db);
                 parks_mcclellan_output.deviation_dbs.push(deviation_db);
             },
@@ -313,9 +269,8 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     for j in 1..(nz+1) {
         let ix = iext[j-1];
         let temp = grid.get(ix as usize - 1);
-        grid.set(j-1, temp);
-        println!("{}", grid.get(j-1));
-        parks_mcclellan_output.extremal_frequencies.push(grid.get(j-1));
+        println!("{}", temp);
+        parks_mcclellan_output.extremal_frequencies.push(temp);
     }
 
     parks_mcclellan_output
@@ -325,13 +280,13 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 // An arbitrary function of frequency can be approximated if the user replaces this function
 // with the appropriate code to evaluate the ideal magnitude.
 // Note that the parameter `freq` is the value of **normalized** frequency needed for evaluation.
-fn eff(freq: f32, fx: &Vec<f32>, _wtx: &Vec<f32>, l_band: usize, j_type: JType) -> f32 {
+fn eff(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
     match j_type {
         JType::Differentiator => {
-            fx[l_band-1] * freq
+            bands[l_band-1].desired_value * freq
         },
         _ => {
-            fx[l_band-1]
+            bands[l_band-1].desired_value
         },
     }
 }
@@ -339,17 +294,17 @@ fn eff(freq: f32, fx: &Vec<f32>, _wtx: &Vec<f32>, l_band: usize, j_type: JType) 
 // Function to calculate the weight function as a function of frequency.
 // Similar to the function `eff`, this function can be replaced by a user-written function
 // to calculate any desired weighting function.
-fn wate(freq: f32, fx: &Vec<f32>, wtx: &Vec<f32>, l_band: usize, j_type: JType) -> f32 {
+fn wate(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
     match j_type {
         JType::Differentiator => {
-            if fx[l_band-1] < 0.0001 {
-                wtx[l_band-1]
+            if bands[l_band-1].desired_value < 0.0001 {
+                bands[l_band-1].weight
             } else {
-                wtx[l_band-1] / freq
+                bands[l_band-1].weight / freq
             }
         },
         _ => {
-            wtx[l_band-1]
+            bands[l_band-1].weight
         }
     }
 }
@@ -370,7 +325,7 @@ fn remez(
     nfcns: usize,
     iext: &mut [i64; 66],
     n_grid: usize,
-    grid: &mut DenseGrid,
+    grid: &DenseGrid,
     wt: &[f32; 1045],
     des: &[f32; 1045],
     alpha: &mut [f32; 66],
@@ -492,7 +447,7 @@ fn remez(
                 if L >= kup {
                     state = 220; continue; // GOTO 220
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
@@ -506,7 +461,7 @@ fn remez(
                 if L >= kup {
                     state = 215; continue; // GOTO 215
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
@@ -531,7 +486,7 @@ fn remez(
                 if L <= klow {
                     state = 250; continue; // GOTO 250
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp > 0.0 {
@@ -551,7 +506,7 @@ fn remez(
                 if L <= klow {
                     state = 240; continue; // GOTO 240
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
@@ -579,7 +534,7 @@ fn remez(
                 if L >= kup {
                     state = 260; continue; // GOTO 260
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
@@ -616,7 +571,7 @@ fn remez(
                 if L >= kup {
                     state = 315; continue; // GOTO 315
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
@@ -652,7 +607,7 @@ fn remez(
                 if L <= klow {
                     state = 340; continue; // GOTO 340
                 }
-                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
@@ -698,7 +653,6 @@ fn remez(
 
                 let nm1 = nfcns - 1;
                 let fsh: f32 = 1.0e-06;
-                let gtemp: f32 = grid.get(0);
                 x[nzz-1] = -2.0;
                 let cn = 2 * nfcns - 1;
                 let delf = 1.0f32 / (cn as f32);
@@ -736,8 +690,7 @@ fn remez(
                                 a[j-1] = y[(L-1) as usize];
                                 break; // Stop looping
                             } else {
-                                grid.set(0, ft);
-                                a[j - 1] = gee(grid, &x, &y, &ad, 1, nz);
+                                a[j - 1] = grid.gee(Some(ft), &x, &y, &ad, 1, nz);
                                 break; // Stop looping
                             }
                         } else if (xe-xt) < fsh {
@@ -755,8 +708,6 @@ fn remez(
                 }
 
                 // jump label 430
-
-                grid.set(0, gtemp);
                 let dden = PI2 / (cn as f64);
 
                 for j in 1..(nfcns+1) {
@@ -841,7 +792,7 @@ fn remez(
 }
 
 // Function to calculate the lagrange interpolation coefficients
-// for use in the function `gee`
+// for use in the function `grid.gee`
 fn d_func(x: &[f64; 66], k: usize, n: usize, m: usize) -> f64 {
     let mut d = 1.0;
     let q = x[k-1];
@@ -859,24 +810,6 @@ fn d_func(x: &[f64; 66], k: usize, n: usize, m: usize) -> f64 {
     }
     d = 1.0 / d;
     d
-}
-
-// Function to evaluate the frequency response using the lagrange interpolation formula
-// in the barycentric form
-fn gee(grid: &DenseGrid, x: &[f64; 66], y: &[f64; 66], ad: &[f64; 66], k: i64, n: usize) -> f64 {
-    let mut p = 0.0;
-    let mut d = 0.0;
-
-    let mut xf = grid.get((k-1) as usize) as f64;
-    xf = (PI2 * xf).cos();
-    for j in 1..(n+1) {
-        let mut c = xf - x[j-1];
-        c = ad[j-1] / c;
-        d += c;
-        p += c*y[j-1];
-    }
-
-    p/d
 }
 
 fn main() {
