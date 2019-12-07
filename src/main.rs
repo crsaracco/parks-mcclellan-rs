@@ -50,7 +50,7 @@ pub struct ParksMcclellanOutput {
     pub desired_values: Vec<f32>,
     pub weightings: Vec<f32>,
     pub deviations: Vec<f32>,
-    pub deviation_dbs: Option<Vec<f32>>,
+    pub deviation_dbs: Vec<f32>,
     pub extremal_frequencies: Vec<f32>,
 }
 
@@ -222,7 +222,11 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
             h[nfcns-1] = 0.5 * alpha[0] - 0.25 * alpha[1];
         } else {
             h[0] = 0.25 * alpha[nfcns-1];
-            h[1] = 0.25 * alpha[nm1-1];
+            if nm1 > 0 {
+                // Fortran treats indexing to the "zeroth" element
+                // as a no-op, I guess? (remember it's 1-indexed)
+                h[1] = 0.25 * alpha[nm1-1];
+            }
             for j in 3..(nm1+1) {
                 let nzmj = nz-j;
                 let nf3j = nfcns+3-j;
@@ -243,7 +247,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         desired_values: vec![],
         weightings: vec![],
         deviations: vec![],
-        deviation_dbs: None,
+        deviation_dbs: vec![],
         extremal_frequencies: vec![],
     };
 
@@ -262,19 +266,8 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     }
     println!();
     if neg == 1 && n_odd == 1 {
-        println!("nz = {}", nz);
+        parks_mcclellan_output.impulse_response.push(0.0);
     }
-
-    // Calculate deviations in dB if we're calculating MultipleBand type filters
-    let mut dev_dbs: Vec<f32> = vec![];
-    parks_mcclellan_output.deviation_dbs = match j_type {
-        JType::MultipleBand => {
-            Some(vec![])
-        },
-        _ => {
-            None
-        },
-    };
 
     for k in 0..n_bands {
         println!("Band {}:", k);
@@ -299,26 +292,18 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         println!("    weighting: {}", wtx[k]);
         parks_mcclellan_output.weightings.push(wtx[k]);
 
-        let deviation: f32 = (dev as f32)/wtx[k];
+        let deviation = (dev/(wtx[k] as f64)) as f32;
         println!("    deviation: {}", deviation);
         parks_mcclellan_output.deviations.push(deviation);
         match j_type {
             JType::MultipleBand => {
                 let deviation_db: f32 = 20.0 * (deviation + fx[k]).log10();
                 println!("    deviation in dB: {}", deviation_db);
-                dev_dbs.push(deviation_db);
+                parks_mcclellan_output.deviation_dbs.push(deviation_db);
             },
             _ => {}
         }
     }
-
-    match j_type {
-        JType::MultipleBand => {
-            parks_mcclellan_output.deviation_dbs = Some(dev_dbs);
-        },
-        _ => {},
-    };
-
 
     println!("Extremal frequencies (maxima of the error curve)");
     for j in 1..(nz+1) {
@@ -399,7 +384,7 @@ fn remez(
     let mut non_loop_j = 0;
     let mut kup = 0;
     let mut L = 0;
-    let mut err = 0.0;
+    let mut err = 0.0f32;
     let mut nut1 = 0;
     let mut luck = 0;
     let mut aa = 0.0f32;
@@ -508,13 +493,13 @@ fn remez(
                 if L >= kup {
                     state = 220; continue; // GOTO 220
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 220; continue; // GOTO 220
                 }
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 state = 210; continue; // fall through to 210
             },
             210 => {
@@ -522,13 +507,13 @@ fn remez(
                 if L >= kup {
                     state = 215; continue; // GOTO 215
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 215; continue; // GOTO 215
                 }
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 state = 210; continue; // GOTO 210 (self loop)
             },
             215 => {
@@ -547,9 +532,9 @@ fn remez(
                 if L <= klow {
                     state = 250; continue; // GOTO 250
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp > 0.0 {
                     state = 230; continue; // GOTO 230
                 }
@@ -559,7 +544,7 @@ fn remez(
                 state = 260; continue; // GOTO 260
             },
             230 => {
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 state = 235; continue; // fall through to 235
             },
             235 => {
@@ -567,13 +552,13 @@ fn remez(
                 if L <= klow {
                     state = 240; continue; // GOTO 240
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 240; continue; // GOTO 240
                 }
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 state = 235; continue; // GOTO 235 (self loop)
             },
             240 => {
@@ -595,13 +580,13 @@ fn remez(
                 if L >= kup {
                     state = 260; continue; // GOTO 260
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 255; continue; // GOTO 255 (self loop)
                 }
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 state = 210; continue; // GOTO 210
             },
             260 => {
@@ -632,13 +617,13 @@ fn remez(
                 if L >= kup {
                     state = 315; continue; // GOTO 315
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 310; continue; // GOTO 310 (self loop)
                 }
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 non_loop_j = nzz;
                 state = 210; continue; // GOTO 210
             },
@@ -668,14 +653,14 @@ fn remez(
                 if L <= klow {
                     state = 340; continue; // GOTO 340
                 }
-                err = gee(grid, &x, &y, &ad, L, nz);
-                err = (err - des[(L-1) as usize] as f64) * wt[(L-1) as usize] as f64;
-                let dtemp = (nut as f64) * err - comp.unwrap();
+                err = gee(grid, &x, &y, &ad, L, nz) as f32;
+                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 330; continue; // GOTO 330 (self loop)
                 }
                 non_loop_j = nzz;
-                comp = Some((nut as f64) * err);
+                comp = Some((nut as f64) * (err as f64));
                 luck += 10;
                 state = 235; continue; // GOTO 235
             },
@@ -816,39 +801,39 @@ fn remez(
                         bb = 0.5 * bb;
                     }
                     p[j] = 0.0; // p[j+1-1]
-                    for k in 1..(j+1) {
-                        a[k] = p[k];
-                        p[k] = 2.0 * (bb as f64) * a[k-1];
+                    for k in 1..(j + 1) {
+                        a[k-1] = p[k-1];
+                        p[k-1] = 2.0 * (bb as f64) * a[k - 1];
                     }
                     p[1] = p[1] + a[0] * 2.0 * (aa as f64);
-                    let jm1 = j-1;
-                    for k in 1..(jm1+1) {
-                        p[k-1] = p[k-1] + q[k-1] + (aa as f64) * a[k]; // a[k+1-1]
+                    let jm1 = j - 1;
+                    for k in 1..(jm1 + 1) {
+                        p[k - 1] = p[k - 1] + q[k - 1] + (aa as f64) * a[k]; // a[k+1-1]
                     }
-                    let jp1 = j+1;
-                    for k in 3..(jp1+1) {
-                        p[k-1] = p[k-1] + (aa as f64) * a[k-2] // a[k-1-1]
+                    let jp1 = j + 1;
+                    for k in 3..(jp1 + 1) {
+                        p[k - 1] = p[k - 1] + (aa as f64) * a[k - 2] // a[k-1-1]
                     }
 
                     if j != nm1 {
-                        for k in 1..(j+1) {
-                            q[k-1] = -a[k-1];
+                        for k in 1..(j + 1) {
+                            q[k - 1] = -a[k - 1];
                         }
-                        let nf1j = nfcns-1-j;
-                        q[0] = q[0] + (alpha[nf1j-1] as f64);
+                        let nf1j = nfcns - 1 - j;
+                        q[0] = q[0] + (alpha[nf1j - 1] as f64);
                     }
+                }
 
-                    for j in 1..(nfcns+1) {
-                        alpha[j-1] = (p[j-1] as f32);
-                    }
+                for j in 1..(nfcns+1) {
+                    alpha[j-1] = (p[j-1] as f32);
+                }
 
-                    if nfcns > 3 {
-                        return;
-                    }
-                    alpha[nfcns] = 0.0; // alpha[nfcns+1-1]
-                    alpha[nfcns+1] = 0.0; // alpha[nfcns+2-1]
+                if nfcns > 3 {
                     return;
                 }
+                alpha[nfcns] = 0.0; // alpha[nfcns+1-1]
+                alpha[nfcns+1] = 0.0; // alpha[nfcns+2-1]
+                return;
             },
             _ => panic!("Unknown state {}", state),
         }
@@ -895,33 +880,19 @@ fn gee(grid: &[f32; 1045], x: &[f64; 66], y: &[f64; 66], ad: &[f64; 66], k: i64,
 }
 
 fn main() {
-//    let mut bands = vec![];
-//    bands.push(Band{
-//        lower_edge: 0.0,
-//        upper_edge: 0.1,
-//        desired_value: 0.0,
-//        weight: 10.0,
-//    });
-//    bands.push(Band{
-//        lower_edge: 0.2,
-//        upper_edge: 0.35,
-//        desired_value: 1.0,
-//        weight: 1.0,
-//    });
-//    bands.push(Band{
-//        lower_edge: 0.425,
-//        upper_edge: 0.5,
-//        desired_value: 0.0,
-//        weight: 10.0,
-//    });
-//    let _pmo = design(32, JType::MultipleBand, &bands, 16);
-
     let mut bands = vec![];
-    bands.push(Band{
-        lower_edge: 0.0,
-        upper_edge: 0.5,
-        desired_value: 1.0,
-        weight: 1.0,
+    bands.push(Band {
+        lower_edge: 0f32,
+        upper_edge: 0.35f32,
+        desired_value: 0f32,
+        weight: 3f32,
     });
-    design(32, JType::Differentiator, &bands, 20);
+    bands.push(Band {
+        lower_edge: 0.4f32,
+        upper_edge: 0.5f32,
+        desired_value: 1f32,
+        weight: 1f32,
+    });
+
+    let pm_output = design(10, JType::MultipleBand, &bands, 16);
 }
