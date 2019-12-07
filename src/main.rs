@@ -1,18 +1,3 @@
-/*
-Input:
- - n_filt: filter length
- - j_type: type of filter
-    - 1 = multiple passband / stopband filter
-    - 2 = differentiator
-    - 3 = hilbert transform filter
- - n_bands: number of bands
- - l_grid: grid density (will be set to 16 unless specified otherwise by a positive constant)
- - edge (2 * n_bands): band-edge array: lower and upper edges for each band (max 10 bands)
- - fx (n_bands): desired function array (or desired slope if differentiator) for each band
- - wtx (n_bands): weight function array in each band. For a differentiator, the weight function is
-                  inversely proportional to f.
-*/
-
 mod tests;
 
 const PI: f64 = std::f64::consts::PI;
@@ -52,6 +37,26 @@ pub struct ParksMcclellanOutput {
     pub deviations: Vec<f32>,
     pub deviation_dbs: Vec<f32>,
     pub extremal_frequencies: Vec<f32>,
+}
+
+struct DenseGrid {
+    buffer: Vec<f32>,
+}
+
+impl DenseGrid {
+    pub fn new(filter_length: usize, grid_density: usize) -> Self {
+        Self {
+            buffer: vec![0.0; (filter_length+1)*((grid_density+1)/2)+1], // TODO: suspicious size...
+        }
+    }
+
+    pub fn set(&mut self, index: usize, value: f32) {
+        self.buffer[index] = value;
+    }
+
+    pub fn get(&self, index: usize) -> f32 {
+        self.buffer[index]
+    }
 }
 
 // Note: l_grid is defaulted to 16 in the Parks-McClellan paper.
@@ -94,16 +99,15 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         nfcns += 1;
     }
 
-    // Set up the dense grid. The number of points in the grid is
-    // (filter_length + 1) * (grid_density) / 2.
-    let mut grid = [0.0f32; 1045];
-    grid[0] = edges[0];
+    // Set up the dense grid.
+    let mut grid = DenseGrid::new(n_filt, l_grid);
+    grid.set(0, edges[0]);
     let mut del_f = (l_grid as f32) * (nfcns as f32);
     del_f = 0.5 / del_f;
 
     if neg != 0 {
         if edges[0] < del_f {
-            grid[0] = del_f;
+            grid.set(0, del_f);
         }
     }
 
@@ -118,19 +122,19 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         let f_up = edges[L]; // edges[L+1-1]
         let mut temp: f32;
         'a: loop {
-            temp = grid[j-1];
+            temp = grid.get(j-1);
             // Calculate the desired magnitude response,
             // and the weight function on the grid.
             des[j-1] = eff(temp, &fx, &wtx, l_band, j_type);
             wt[j-1] = wate(temp, &fx, &wtx, l_band, j_type);
             j += 1;
-            grid[j-1] = temp + del_f;
-            if grid[j-1] > f_up {
+            grid.set(j-1, temp+del_f);
+            if grid.get(j-1) > f_up {
                 break 'a;
             }
         }
 
-        grid[j-2] = f_up; // grid[j-1-1]
+        grid.set(j-2, f_up);
         des[j-2] = eff(f_up, &fx, &wtx, l_band, j_type);
         wt[j-2] = wate(f_up, &fx, &wtx, l_band, j_type);
         l_band = l_band + 1;
@@ -138,13 +142,13 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         if l_band > n_bands {
             break 'b;
         }
-        grid[j-1] = edges[L-1];
+        grid.set(j-1, edges[L-1]);
     }
 
     let mut n_grid = j-1;
 
     if neg == n_odd {
-        if grid[n_grid-1] > (0.5 - del_f) {
+        if grid.get(n_grid-1) > (0.5 - del_f) {
             n_grid = n_grid - 1;
         }
     }
@@ -155,7 +159,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
             // NOP (?)
         } else {
             for j in 1..(n_grid+1) {
-                let change: f32 = (PI * grid[j-1] as f64).cos() as f32;
+                let change: f32 = (PI * grid.get(j-1) as f64).cos() as f32;
                 des[j-1] = des[j-1] / change;
                 wt[j-1] = wt[j-1] * change;
             }
@@ -164,13 +168,13 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     else {
         if n_odd == 1 {
             for j in 1..(n_grid+1) {
-                let change = (PI2 * grid[j-1] as f64).sin() as f32;
+                let change = (PI2 * grid.get(j-1) as f64).sin() as f32;
                 des[j-1] = des[j-1] / change;
                 wt[j-1] = wt[j-1] * change;
             }
         } else {
             for j in 1..(n_grid+1) {
-                let change = (PI * grid[j-1] as f64).sin() as f32;
+                let change = (PI * grid.get(j-1) as f64).sin() as f32;
                 des[j-1] = des[j-1] / change;
                 wt[j-1] = wt[j-1] * change;
             }
@@ -308,9 +312,10 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     println!("Extremal frequencies (maxima of the error curve)");
     for j in 1..(nz+1) {
         let ix = iext[j-1];
-        grid[j-1] = grid[ix as usize - 1];
-        println!("{}", grid[j-1]);
-        parks_mcclellan_output.extremal_frequencies.push(grid[j-1]);
+        let temp = grid.get(ix as usize - 1);
+        grid.set(j-1, temp);
+        println!("{}", grid.get(j-1));
+        parks_mcclellan_output.extremal_frequencies.push(grid.get(j-1));
     }
 
     parks_mcclellan_output
@@ -365,7 +370,7 @@ fn remez(
     nfcns: usize,
     iext: &mut [i64; 66],
     n_grid: usize,
-    grid: &mut [f32; 1045],
+    grid: &mut DenseGrid,
     wt: &[f32; 1045],
     des: &[f32; 1045],
     alpha: &mut [f32; 66],
@@ -412,7 +417,7 @@ fn remez(
                 }
                 for j in 1..(nz+1) {
                     let jxt = iext[j-1];
-                    let mut dtemp: f64 = grid[(jxt-1) as usize] as f64;
+                    let mut dtemp: f64 = grid.get((jxt-1) as usize) as f64;
                     dtemp = (dtemp * PI2).cos();
                     x[j-1] = dtemp;
                 }
@@ -428,15 +433,9 @@ fn remez(
 
                     L = iext[j-1];
                     let dtemp = ad[j-1] * des[(L-1) as usize] as f64;
-//                    println!("L: {}", L);
-//                    println!(" ADJ = {}", ad[j-1]);
-//                    println!("DESL = {}", des[(L-1) as usize]);
-//                    println!(" WTL = {}", wt[(L-1) as usize]);
                     dnum += dtemp;
                     let dtemp = (k as f64) * ad[j-1] / wt[(L-1) as usize] as f64;
                     dden += dtemp;
-//                    println!("DNUM = {}", dnum);
-//                    println!("DDEN = {}", dden);
                     k = -k;
                 }
                 *dev = dnum / dden;
@@ -699,13 +698,13 @@ fn remez(
 
                 let nm1 = nfcns - 1;
                 let fsh: f32 = 1.0e-06;
-                let gtemp: f32 = grid[0]; // grid[1-1]
+                let gtemp: f32 = grid.get(0);
                 x[nzz-1] = -2.0;
                 let cn = 2 * nfcns - 1;
                 let delf = 1.0f32 / (cn as f32);
                 L = 1;
                 let mut kkk = 0;
-                if grid[0] < 0.01 && grid[n_grid-1] > 0.49 {
+                if grid.get(0) < 0.01 && grid.get(n_grid-1) > 0.49 {
                     kkk = 1;
                 }
                 if nfcns <= 3 {
@@ -713,8 +712,8 @@ fn remez(
                 }
 
                 if kkk != 1 {
-                    let dtemp = (PI2 * grid[0] as f64).cos();
-                    let dnum = (PI2 * grid[n_grid - 1] as f64).cos();
+                    let dtemp = (PI2 * grid.get(0) as f64).cos();
+                    let dnum = (PI2 * grid.get(n_grid-1) as f64).cos();
                     aa = (2.0 / (dtemp - dnum)) as f32;
                     bb = (-(dtemp + dnum) / (dtemp - dnum)) as f32;
                 }
@@ -737,7 +736,7 @@ fn remez(
                                 a[j-1] = y[(L-1) as usize];
                                 break; // Stop looping
                             } else {
-                                grid[0] = ft;
+                                grid.set(0, ft);
                                 a[j - 1] = gee(grid, &x, &y, &ad, 1, nz);
                                 break; // Stop looping
                             }
@@ -756,7 +755,8 @@ fn remez(
                 }
 
                 // jump label 430
-                grid[0] = gtemp;
+
+                grid.set(0, gtemp);
                 let dden = PI2 / (cn as f64);
 
                 for j in 1..(nfcns+1) {
@@ -825,7 +825,7 @@ fn remez(
                 }
 
                 for j in 1..(nfcns+1) {
-                    alpha[j-1] = (p[j-1] as f32);
+                    alpha[j-1] = p[j-1] as f32;
                 }
 
                 if nfcns > 3 {
@@ -863,11 +863,11 @@ fn d_func(x: &[f64; 66], k: usize, n: usize, m: usize) -> f64 {
 
 // Function to evaluate the frequency response using the lagrange interpolation formula
 // in the barycentric form
-fn gee(grid: &[f32; 1045], x: &[f64; 66], y: &[f64; 66], ad: &[f64; 66], k: i64, n: usize) -> f64 {
+fn gee(grid: &DenseGrid, x: &[f64; 66], y: &[f64; 66], ad: &[f64; 66], k: i64, n: usize) -> f64 {
     let mut p = 0.0;
     let mut d = 0.0;
 
-    let mut xf = (grid[(k-1) as usize] as f64);
+    let mut xf = grid.get((k-1) as usize) as f64;
     xf = (PI2 * xf).cos();
     for j in 1..(n+1) {
         let mut c = xf - x[j-1];
@@ -894,5 +894,5 @@ fn main() {
         weight: 1f32,
     });
 
-    let pm_output = design(10, JType::MultipleBand, &bands, 16);
+    let _pm_output = design(10, JType::MultipleBand, &bands, 16);
 }
