@@ -21,7 +21,7 @@ const NF_MAX: usize = 128;
 
 #[derive(Copy, Clone)]
 #[allow(dead_code)]
-enum JType {
+pub enum JType {
     MultipleBand,   // 1
     Differentiator, // 2
     Hilbert,        // 3
@@ -44,7 +44,7 @@ pub struct ParksMcclellanOutput {
 
 // Note: l_grid is defaulted to 16 in the Parks-McClellan paper.
 fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> ParksMcclellanOutput {
-    // The filter length must be greater than zero, and less/equal to NF_MAX.
+    // The filter length must be [3, NF_MAX].
     assert!(n_filt >= 3);
     assert!(n_filt <= NF_MAX);
 
@@ -71,68 +71,44 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     let num_coefficients = num_coefficients;
 
     // Set up the dense grid.
-    let grid = DenseGrid::new(&bands, n_filt, l_grid, num_coefficients, neg);
+    let mut grid = DenseGrid::new(&bands, j_type, n_filt, l_grid, num_coefficients, neg, n_odd);
 
-    let mut des = [0.0f32; 1045];
-    let mut wt = [0.0f32; 1045];
-
-    let mut j = 1;
-    let mut l_band = 1;
-    loop {
-        let f_up = bands[l_band-1].upper_edge;
-        let new_grid_value = grid.get(j-1)+grid.del_f();
-
-        if new_grid_value > f_up {
-            l_band = l_band + 1;
-        }
-
-        if new_grid_value <= f_up {
-            des[j-1] = eff(&bands, grid.get(j-1), l_band, j_type);
-            wt[j-1] = wate(&bands, grid.get(j-1), l_band, j_type);
-        } else {
-            des[j-1] = eff(&bands, f_up, l_band-1, j_type);
-            wt[j-1] = wate(&bands, f_up, l_band-1, j_type);
-        }
-
-        if new_grid_value > f_up && l_band > bands.len() {
-            break;
-        }
-        j += 1;
-    }
-    j += 1;
-
-    let mut n_grid = j-1;
-
-    if neg == n_odd {
-        if grid.get(n_grid-1) > (0.5 - grid.del_f()) {
-            n_grid = n_grid - 1;
-        }
-    }
+    let n_grid = grid.n_grid();
 
     // Set up a new approximation problem which is equivalent to the original problem.
+    // TODO: This can probably be rolled into the DenseGrid struct?
+    //       Although it's kinda not really the same thing...
     if neg == 0 {
         if n_odd == 1 {
             // NOP (?)
         } else {
             for j in 1..(n_grid+1) {
-                let change: f32 = (PI * grid.get(j-1) as f64).cos() as f32;
-                des[j-1] = des[j-1] / change;
-                wt[j-1] = wt[j-1] * change;
+                let change: f32 = (PI * grid.get_grid(j-1) as f64).cos() as f32;
+                let temp_des = grid.get_des(j-1);
+                grid.set_des(j-1, temp_des / change);
+                let temp_wt = grid.get_wt(j-1);
+                grid.set_wt(j-1, temp_wt*change);
             }
         }
     }
     else {
         if n_odd == 1 {
+            // NOTE: PI2
             for j in 1..(n_grid+1) {
-                let change = (PI2 * grid.get(j-1) as f64).sin() as f32;
-                des[j-1] = des[j-1] / change;
-                wt[j-1] = wt[j-1] * change;
+                let change = (PI2 * grid.get_grid(j-1) as f64).sin() as f32;
+                let temp_des = grid.get_des(j-1);
+                grid.set_des(j-1, temp_des / change);
+                let temp_wt = grid.get_wt(j-1);
+                grid.set_wt(j-1, temp_wt*change);
             }
         } else {
+            // NOTE: PI
             for j in 1..(n_grid+1) {
-                let change = (PI * grid.get(j-1) as f64).sin() as f32;
-                des[j-1] = des[j-1] / change;
-                wt[j-1] = wt[j-1] * change;
+                let change = (PI * grid.get_grid(j-1) as f64).sin() as f32;
+                let temp_des = grid.get_des(j-1);
+                grid.set_des(j-1, temp_des / change);
+                let temp_wt = grid.get_wt(j-1);
+                grid.set_wt(j-1, temp_wt*change);
             }
         }
     }
@@ -151,7 +127,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     // Call the remez exchange algorithm to do the approximation problem.
     let mut alpha = [0.0f32; 66];
     let mut dev: f64 = 0.0;
-    remez(num_coefficients, &mut iext, n_grid, &grid, &wt, &des, &mut alpha, &mut dev);
+    remez(num_coefficients, &mut iext, n_grid, &grid, &mut alpha, &mut dev);
 
     // Calculate the impulse response.
     let mut h = [0.0f32; 66];
@@ -268,45 +244,12 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     println!("Extremal frequencies (maxima of the error curve)");
     for j in 1..(nz+1) {
         let ix = iext[j-1];
-        let temp = grid.get(ix as usize - 1);
+        let temp = grid.get_grid(ix as usize - 1);
         println!("{}", temp);
         parks_mcclellan_output.extremal_frequencies.push(temp);
     }
 
     parks_mcclellan_output
-}
-
-// Function to calculate the desired magnitude response as a function of frequency.
-// An arbitrary function of frequency can be approximated if the user replaces this function
-// with the appropriate code to evaluate the ideal magnitude.
-// Note that the parameter `freq` is the value of **normalized** frequency needed for evaluation.
-fn eff(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
-    match j_type {
-        JType::Differentiator => {
-            bands[l_band-1].desired_value * freq
-        },
-        _ => {
-            bands[l_band-1].desired_value
-        },
-    }
-}
-
-// Function to calculate the weight function as a function of frequency.
-// Similar to the function `eff`, this function can be replaced by a user-written function
-// to calculate any desired weighting function.
-fn wate(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
-    match j_type {
-        JType::Differentiator => {
-            if bands[l_band-1].desired_value < 0.0001 {
-                bands[l_band-1].weight
-            } else {
-                bands[l_band-1].weight / freq
-            }
-        },
-        _ => {
-            bands[l_band-1].weight
-        }
-    }
 }
 
 // This function implements the Remez Exchange Algorithm for the weighted Chebyshev approximation
@@ -326,8 +269,6 @@ fn remez(
     iext: &mut [i64; 66],
     n_grid: usize,
     grid: &DenseGrid,
-    wt: &[f32; 1045],
-    des: &[f32; 1045],
     alpha: &mut [f32; 66],
     dev: &mut f64,
 ) {
@@ -372,7 +313,7 @@ fn remez(
                 }
                 for j in 1..(nz+1) {
                     let jxt = iext[j-1];
-                    let mut dtemp: f64 = grid.get((jxt-1) as usize) as f64;
+                    let mut dtemp: f64 = grid.get_grid((jxt-1) as usize) as f64;
                     dtemp = (dtemp * PI2).cos();
                     x[j-1] = dtemp;
                 }
@@ -387,9 +328,9 @@ fn remez(
                 for j in 1..(nz+1) {
 
                     L = iext[j-1];
-                    let dtemp = ad[j-1] * des[(L-1) as usize] as f64;
+                    let dtemp = ad[j-1] * grid.get_des((L-1) as usize) as f64;
                     dnum += dtemp;
-                    let dtemp = (k as f64) * ad[j-1] / wt[(L-1) as usize] as f64;
+                    let dtemp = (k as f64) * ad[j-1] / grid.get_wt((L-1) as usize) as f64;
                     dden += dtemp;
                     k = -k;
                 }
@@ -405,8 +346,8 @@ fn remez(
 
                 for j in 1..(nz+1) {
                     L = iext[j-1];
-                    let dtemp = (k as f64) * *dev / wt[(L-1) as usize] as f64;
-                    y[j-1] = des[(L-1) as usize] as f64 + dtemp;
+                    let dtemp = (k as f64) * *dev / grid.get_wt((L-1) as usize) as f64;
+                    y[j-1] = grid.get_des((L-1) as usize) as f64 + dtemp;
                     k = -k;
                 }
 
@@ -448,7 +389,7 @@ fn remez(
                     state = 220; continue; // GOTO 220
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 220; continue; // GOTO 220
@@ -462,7 +403,7 @@ fn remez(
                     state = 215; continue; // GOTO 215
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 215; continue; // GOTO 215
@@ -487,7 +428,7 @@ fn remez(
                     state = 250; continue; // GOTO 250
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp > 0.0 {
                     state = 230; continue; // GOTO 230
@@ -507,7 +448,7 @@ fn remez(
                     state = 240; continue; // GOTO 240
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 240; continue; // GOTO 240
@@ -535,7 +476,7 @@ fn remez(
                     state = 260; continue; // GOTO 260
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 255; continue; // GOTO 255 (self loop)
@@ -572,7 +513,7 @@ fn remez(
                     state = 315; continue; // GOTO 315
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 310; continue; // GOTO 310 (self loop)
@@ -608,7 +549,7 @@ fn remez(
                     state = 340; continue; // GOTO 340
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - des[(L-1) as usize]) * wt[(L-1) as usize];
+                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
                     state = 330; continue; // GOTO 330 (self loop)
@@ -658,7 +599,7 @@ fn remez(
                 let delf = 1.0f32 / (cn as f32);
                 L = 1;
                 let mut kkk = 0;
-                if grid.get(0) < 0.01 && grid.get(n_grid-1) > 0.49 {
+                if grid.get_grid(0) < 0.01 && grid.get_grid(n_grid-1) > 0.49 {
                     kkk = 1;
                 }
                 if nfcns <= 3 {
@@ -666,8 +607,8 @@ fn remez(
                 }
 
                 if kkk != 1 {
-                    let dtemp = (PI2 * grid.get(0) as f64).cos();
-                    let dnum = (PI2 * grid.get(n_grid-1) as f64).cos();
+                    let dtemp = (PI2 * grid.get_grid(0) as f64).cos();
+                    let dnum = (PI2 * grid.get_grid(n_grid-1) as f64).cos();
                     aa = (2.0 / (dtemp - dnum)) as f32;
                     bb = (-(dtemp + dnum) / (dtemp - dnum)) as f32;
                 }
