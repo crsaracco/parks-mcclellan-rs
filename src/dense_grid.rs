@@ -14,7 +14,7 @@ pub struct DenseGrid {
 }
 
 impl DenseGrid {
-    pub fn new(bands: &Vec<Band>, j_type: JType, filter_length: usize, grid_density: usize, num_coefficients: usize, neg: bool, odd: bool) -> Self {
+    pub fn new(bands: &Vec<Band>, j_type: JType, grid_density: usize, num_coefficients: usize, neg: bool, odd: bool) -> Self {
         let del_f = 0.5 / ((grid_density as f32) * (num_coefficients as f32));
         let (grid, grid_band) = generate_grid(bands, del_f, neg);
 
@@ -43,17 +43,9 @@ impl DenseGrid {
     pub fn get_des(&self, index: usize) -> f32 {
         self.des[index]
     }
-
-    pub fn set_des(&mut self, index: usize, value: f32) {
-        self.des[index] = value;
-    }
-
+    
     pub fn get_wt(&self, index: usize) -> f32 {
         self.wt[index]
-    }
-
-    pub fn set_wt(&mut self, index: usize, value: f32) {
-        self.wt[index] = value;
     }
 
     pub fn del_f(&self) -> f32 {
@@ -62,6 +54,21 @@ impl DenseGrid {
 
     pub fn n_grid(&self) -> usize {
         self.n_grid
+    }
+
+    pub fn reformat_grid_for_remez(&mut self, neg: bool, odd: bool) {
+        if !neg && odd {
+            return; // TODO: ???
+        }
+
+        let f = if neg { f64::sin } else { f64::cos };
+        let constant = if odd { PI2 } else { PI };
+
+        for j in 0..self.n_grid {
+            let change = f(constant * self.grid[j] as f64) as f32;
+            self.des[j] = self.des[j] / change;
+            self.wt[j] = self.wt[j] * change;
+        }
     }
 
     // Function to evaluate the frequency response using the lagrange interpolation formula

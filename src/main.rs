@@ -71,36 +71,10 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     let num_coefficients = num_coefficients;
 
     // Set up the dense grid.
-    let mut grid = DenseGrid::new(&bands, j_type, n_filt, l_grid, num_coefficients, neg, odd);
+    let mut grid = DenseGrid::new(&bands, j_type, l_grid, num_coefficients, neg, odd);
+    grid.reformat_grid_for_remez(neg, odd);
+    let grid = grid;
 
-    let n_grid = grid.n_grid();
-
-    // Set up a new approximation problem which is equivalent to the original problem.
-    // TODO: This can probably be rolled into the DenseGrid struct?
-    //       Although it's kinda not really the same thing...
-    if !neg {
-        if odd {
-            // NOP (?)
-        } else {
-            for j in 1..(grid.n_grid()+1) {
-                let change: f32 = (PI * grid.get_grid(j-1) as f64).cos() as f32;
-                let temp_des = grid.get_des(j-1);
-                grid.set_des(j-1, temp_des / change);
-                let temp_wt = grid.get_wt(j-1);
-                grid.set_wt(j-1, temp_wt*change);
-            }
-        }
-    }
-    else {
-        let constant = if odd { PI2 } else { PI };
-        for j in 1..(grid.n_grid()+1) {
-            let change = (constant * grid.get_grid(j-1) as f64).sin() as f32;
-            let temp_des = grid.get_des(j-1);
-            grid.set_des(j-1, temp_des / change);
-            let temp_wt = grid.get_wt(j-1);
-            grid.set_wt(j-1, temp_wt*change);
-        }
-    }
 
     // Initial guess for the extremal frequencies: equally spaced along the grid.
     let mut iext = [0; 66];
