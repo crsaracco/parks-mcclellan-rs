@@ -84,12 +84,11 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     let mut extremal_frequencies = ExtremalFrequencies::new(num_coefficients);
     extremal_frequencies.initialize_guess(&grid);
 
-    let mut iext = extremal_frequencies.get_iext();
     let nm1 = num_coefficients - 1;
     let last_coefficient_index = num_coefficients + 1;
 
     // Call the remez exchange algorithm to do the approximation problem.
-    let (alpha, deviation) = remez(num_coefficients, &grid, &mut iext, &mut extremal_frequencies);
+    let (alpha, deviation) = remez(num_coefficients, &grid, &mut extremal_frequencies);
 
     // Calculate the impulse response.
     let mut h = [0.0f32; 66];
@@ -205,8 +204,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 
     println!("Extremal frequencies (maxima of the error curve)");
     for j in 1..(last_coefficient_index +1) {
-        //let grid_index = extremal_frequencies.get_grid_index(j-1);
-        let grid_index = iext[j-1];
+        let grid_index = extremal_frequencies.get_grid_index(j-1);
         let temp = grid.get_grid(grid_index as usize - 1);
         println!("{}", temp);
         parks_mcclellan_output.extremal_frequencies.push(temp);
@@ -230,7 +228,6 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 fn remez(
     num_coefficients: usize,
     grid: &DenseGrid,
-    iext: &mut [i64; 66],
     extremal_frequencies: &mut ExtremalFrequencies,
 ) -> ([f32; 66], f64) {
     // Outputs
@@ -257,14 +254,14 @@ fn remez(
     let mut niter = 0;
 
     'state_100: loop {
-        iext[last_coefficient_index] = grid.n_grid() as i64 + 1;
+        extremal_frequencies.set_grid_index(last_coefficient_index, grid.n_grid() as i64 + 1);
         niter += 1;
         println!("niter: {}", niter);
         if niter > itrmax {
             break 'state_100;
         }
         for j in 1..(last_coefficient_index +1) {
-            let jxt = iext[j-1];
+            let jxt = extremal_frequencies.get_grid_index(j-1);
             let mut dtemp: f64 = grid.get_grid((jxt-1) as usize) as f64;
             dtemp = (dtemp * PI2).cos();
             x[j-1] = dtemp;
@@ -277,8 +274,8 @@ fn remez(
         let mut dnum = 0.0;
         let mut dden = 0.0;
         let mut k = 1;
-        for j in 1..(last_coefficient_index +1) {
-            let local_ell = iext[j-1];
+        for j in 1..(last_coefficient_index+1) {
+            let local_ell = extremal_frequencies.get_grid_index(j-1);
             let dtemp = ad[j-1] * grid.get_des((local_ell-1) as usize) as f64;
             dnum += dtemp;
             let dtemp = (k as f64) * ad[j-1] / grid.get_wt((local_ell-1) as usize) as f64;
@@ -293,7 +290,7 @@ fn remez(
         k = nu;
 
         for j in 1..(last_coefficient_index +1) {
-            let local_ell = iext[j-1];
+            let local_ell = extremal_frequencies.get_grid_index(j-1);
             let dtemp = (k as f64) * deviation / grid.get_wt((local_ell-1) as usize) as f64;
             y[j-1] = grid.get_des((local_ell-1) as usize) as f64 + dtemp;
             k = -k;
@@ -309,8 +306,8 @@ fn remez(
 
         devl = deviation as f32;
         let mut jchnge = 0;
-        let mut k1 = iext[0];
-        let mut knz = iext[last_coefficient_index -1];
+        let mut k1 = extremal_frequencies.get_grid_index(0);
+        let mut knz = extremal_frequencies.get_grid_index(last_coefficient_index-1);
         let mut klow = 0;
         let mut nut = -nu;
         let mut non_loop_j = 1; // Only ever increases inside 'state_200
@@ -323,19 +320,14 @@ fn remez(
             if non_loop_j >= coefficient_off_end_index {
                 if non_loop_j > coefficient_off_end_index {
                     if luck > 9 {
-                        let kn = iext[coefficient_off_end_index -1];
-                        for j in 1..(num_coefficients +1) {
-                            iext[j-1] = iext[j] // j+1-1
-                        }
-                        iext[last_coefficient_index -1] = kn;
+                        extremal_frequencies.shift_grid_indexes_left();
                         continue 'state_100;
                     }
                     if comp.unwrap() > y1.unwrap() {
                         y1 = comp;
                     }
-                    k1 = iext[coefficient_off_end_index -1];
+                    k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
                     let mut local_ell = grid.n_grid() as i64 + 1;
-                    //L = grid.n_grid() as i64 + 1;
                     klow = knz;
                     nut = -nut1;
                     comp = Some(y1.unwrap() * 1.00001);
@@ -348,12 +340,7 @@ fn remez(
                                 }
                                 break 'state_100;
                             }
-                            for j in 1..(num_coefficients +1) {
-                                let nzzmj = coefficient_off_end_index - j;
-                                let nzmj = last_coefficient_index - j;
-                                iext[nzzmj-1] = iext[nzmj-1];
-                            }
-                            iext[0] = k1;
+                            extremal_frequencies.shift_grid_indexes_right(k1);
                             continue 'state_100;
                         }
                         let mut err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
@@ -363,15 +350,17 @@ fn remez(
                         }
                         non_loop_j = coefficient_off_end_index;
                         luck += 10;
-                        common_loop_function_01(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut local_ell, &mut err, &mut comp, nut, last_coefficient_index);
+                        common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut local_ell, &mut err, &mut comp, nut, last_coefficient_index);
                         continue 'state_200;
                     }
                 }
-                if k1 > iext[0] {
-                    k1 = iext[0];
+                let zeroth_grid_index = extremal_frequencies.get_grid_index(0);
+                if k1 > zeroth_grid_index {
+                    k1 = zeroth_grid_index;
                 }
-                if knz < iext[last_coefficient_index -1] {
-                    knz = iext[last_coefficient_index -1];
+                let almost_last_grid_index = extremal_frequencies.get_grid_index(last_coefficient_index-1);
+                if knz < almost_last_grid_index {
+                    knz = almost_last_grid_index;
                 }
                 nut1 = nut;
                 nut = -nu;
@@ -396,12 +385,7 @@ fn remez(
                                     }
                                     break 'state_100;
                                 }
-                                for j in 1..(num_coefficients +1) {
-                                    let nzzmj = coefficient_off_end_index - j;
-                                    let nzmj = last_coefficient_index - j;
-                                    iext[nzzmj-1] = iext[nzmj-1];
-                                }
-                                iext[0] = k1;
+                                extremal_frequencies.shift_grid_indexes_right(k1);
                                 continue 'state_100;
                             }
                             let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
@@ -411,7 +395,7 @@ fn remez(
                             }
                             non_loop_j = coefficient_off_end_index;
                             luck += 10;
-                            common_loop_function_01(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
+                            common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
                             continue 'state_200;
                         }
                     }
@@ -420,14 +404,13 @@ fn remez(
                     if dtemp <= 0.0 {
                         continue 'loop_06;
                     }
-                    comp = Some((nut as f64) * (err as f64));
                     non_loop_j = coefficient_off_end_index;
-                    common_loop_function_02(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+                    common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
                     continue 'state_200;
                 }
             }
-            let kup = iext[non_loop_j];
-            let mut ell = iext[non_loop_j-1] + 1;
+            let kup = extremal_frequencies.get_grid_index(non_loop_j);
+            let mut ell = extremal_frequencies.get_grid_index(non_loop_j-1) + 1;
             nut = -nut;
             if non_loop_j == 2 {
                 y1 = comp;
@@ -438,9 +421,9 @@ fn remez(
                 'loop_03: loop {
                     ell = ell - 1;
                     if ell <= klow {
-                        ell = iext[non_loop_j-1] + 1;
+                        ell = extremal_frequencies.get_grid_index(non_loop_j-1) + 1;
                         if jchnge > 0 {
-                            iext[non_loop_j-1] = ell - 1;
+                            extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
                             non_loop_j = non_loop_j + 1;
                             klow = ell - 1;
                             jchnge = jchnge + 1;
@@ -449,7 +432,7 @@ fn remez(
                         'loop_05: loop {
                             ell += 1;
                             if ell >= kup {
-                                klow = iext[non_loop_j-1];
+                                klow = extremal_frequencies.get_grid_index(non_loop_j-1);
                                 non_loop_j += 1;
                                 continue 'state_200;
                             }
@@ -458,21 +441,20 @@ fn remez(
                             if dtemp <= 0.0 {
                                 continue 'loop_05;
                             }
-                            comp = Some((nut as f64) * (err as f64));
-                            common_loop_function_02(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+                            common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
                             continue 'state_200;
                         }
                     }
                     let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                     let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                     if dtemp > 0.0 {
-                        common_loop_function_01(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
+                        common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
                         continue 'state_200;
                     }
                     if jchnge <= 0 {
                         continue 'loop_03;
                     }
-                    klow = iext[non_loop_j-1];
+                    klow = extremal_frequencies.get_grid_index(non_loop_j-1);
                     non_loop_j += 1;
                     continue 'state_200;
                 }
@@ -484,9 +466,9 @@ fn remez(
                 'loop_13: loop {
                     ell = ell - 1;
                     if ell <= klow {
-                        ell = iext[non_loop_j-1] + 1;
+                        ell = extremal_frequencies.get_grid_index(non_loop_j-1) + 1;
                         if jchnge > 0 {
-                            iext[non_loop_j-1] = ell - 1;
+                            extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
                             non_loop_j = non_loop_j + 1;
                             klow = ell - 1;
                             jchnge = jchnge + 1;
@@ -495,7 +477,7 @@ fn remez(
                         'loop_15: loop {
                             ell += 1;
                             if ell >= kup {
-                                klow = iext[non_loop_j-1];
+                                klow = extremal_frequencies.get_grid_index(non_loop_j-1);
                                 non_loop_j += 1;
                                 continue 'state_200;
                             }
@@ -504,27 +486,25 @@ fn remez(
                             if dtemp <= 0.0 {
                                 continue 'loop_15;
                             }
-                            comp = Some((nut as f64) * (err as f64));
-                            common_loop_function_02(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+                            common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
                             continue 'state_200;
                         }
                     }
                     err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                     let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                     if dtemp > 0.0 {
-                        common_loop_function_01(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
+                        common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
                         continue 'state_200;
                     }
                     if jchnge <= 0 {
                         continue 'loop_13;
                     }
-                    klow = iext[non_loop_j-1];
+                    klow = extremal_frequencies.get_grid_index(non_loop_j-1);
                     non_loop_j += 1;
                     continue 'state_200;
                 }
             }
-            comp = Some((nut as f64) * (err as f64));
-            common_loop_function_02(grid, iext, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+            common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
             continue 'state_200;
         }
     }
@@ -699,12 +679,12 @@ fn calculate_err(
     last_coefficient_index: usize,
 ) -> f32 {
     let err = grid.gee(zeroth_value_override, x, y, ad, ell, last_coefficient_index) as f32;
-    (err - grid.get_des((ell -1) as usize)) * grid.get_wt((ell -1) as usize)
+    (err - grid.get_des((ell - 1) as usize)) * grid.get_wt((ell - 1) as usize)
 }
 
 fn common_loop_function_01(
     grid: &DenseGrid,
-    iext: &mut [i64; 66],
+    extremal_frequencies: &mut ExtremalFrequencies,
     x: &[f64; 66],
     y: &[f64; 66],
     ad: &[f64; 66],
@@ -718,31 +698,29 @@ fn common_loop_function_01(
     last_coefficient_index: usize,
 ) {
     *comp = Some((nut as f64) * (*err as f64));
+
     loop {
         *ell = *ell - 1;
         if ell <= klow {
-            *klow = iext[*non_loop_j-1];
-            iext[*non_loop_j-1] = *ell +1;
-            *non_loop_j += 1;
-            *jchnge += 1;
             break;
         }
         *err = calculate_err(grid, None, &x, &y, &ad, *ell, last_coefficient_index);
         let dtemp = (nut as f64) * (*err as f64) - comp.unwrap();
         if dtemp <= 0.0 {
-            *klow = iext[*non_loop_j-1];
-            iext[*non_loop_j-1] = *ell +1;
-            *non_loop_j += 1;
-            *jchnge += 1;
             break;
         }
         *comp = Some((nut as f64) * (*err as f64));
     }
+
+    *klow = extremal_frequencies.get_grid_index(*non_loop_j-1);
+    extremal_frequencies.set_grid_index(*non_loop_j-1, *ell+1);
+    *non_loop_j += 1;
+    *jchnge += 1;
 }
 
 fn common_loop_function_02(
     grid: &DenseGrid,
-    iext: &mut [i64; 66],
+    extremal_frequencies: &mut ExtremalFrequencies,
     x: &[f64; 66],
     y: &[f64; 66],
     ad: &[f64; 66],
@@ -756,26 +734,25 @@ fn common_loop_function_02(
     nut: i32,
     last_coefficient_index: usize,
 ) {
+    *comp = Some((nut as f64) * (*err as f64));
+
     loop {
         *ell = *ell + 1;
         if *ell >= kup {
-            iext[*non_loop_j-1] = *ell - 1;
-            *non_loop_j = *non_loop_j + 1;
-            *klow = *ell - 1;
-            *jchnge = *jchnge + 1;
             break;
         }
         *err = calculate_err(grid, None, &x, &y, &ad, *ell, last_coefficient_index);
         let dtemp = (nut as f64) * (*err as f64) - comp.unwrap();
         if dtemp <= 0.0 {
-            iext[*non_loop_j-1] = *ell - 1;
-            *non_loop_j = *non_loop_j + 1;
-            *klow = *ell - 1;
-            *jchnge = *jchnge + 1;
             break;
         }
         *comp = Some((nut as f64) * (*err as f64));
     }
+
+    extremal_frequencies.set_grid_index(*non_loop_j-1, *ell-1);
+    *non_loop_j = *non_loop_j + 1;
+    *klow = *ell - 1;
+    *jchnge = *jchnge + 1;
 }
 
 fn main() {
