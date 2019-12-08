@@ -6,7 +6,7 @@ const PI2: f64 = PI * 2.0;
 
 pub struct DenseGrid {
     grid: Vec<f32>,
-    grid_band: Vec<usize>, // which parts of the grid correspond to which bands
+    _grid_band: Vec<usize>, // which parts of the grid correspond to which bands
     des: [f32; 1045], // num elements?
     wt: [f32; 1045], // num elements?
     del_f: f32,
@@ -28,7 +28,7 @@ impl DenseGrid {
 
         Self {
             grid,
-            grid_band,
+            _grid_band: grid_band,
             des,
             wt,
             del_f,
