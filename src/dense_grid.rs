@@ -14,7 +14,7 @@ pub struct DenseGrid {
 }
 
 impl DenseGrid {
-    pub fn new(bands: &Vec<Band>, j_type: JType, filter_length: usize, grid_density: usize, num_coefficients: usize, neg: i32, n_odd: i32) -> Self {
+    pub fn new(bands: &Vec<Band>, j_type: JType, filter_length: usize, grid_density: usize, num_coefficients: usize, neg: bool, odd: bool) -> Self {
         let del_f = 0.5 / ((grid_density as f32) * (num_coefficients as f32));
         let (grid, grid_band) = generate_grid(bands, del_f, neg);
 
@@ -22,7 +22,7 @@ impl DenseGrid {
         let wt = generate_wt(bands, j_type, &grid, &grid_band);
 
         let mut n_grid = grid.len();
-        if neg == n_odd && grid[n_grid-1] > (0.5 - del_f) {
+        if neg == odd && grid[n_grid-1] > (0.5 - del_f) {
             n_grid -= 1;
         }
 
@@ -89,7 +89,7 @@ impl DenseGrid {
 }
 
 // Used internally to generate the grid.
-fn generate_grid(bands: &Vec<Band>, del_f: f32, neg: i32) -> (Vec<f32>, Vec<usize>) {
+fn generate_grid(bands: &Vec<Band>, del_f: f32, neg: bool) -> (Vec<f32>, Vec<usize>) {
     let mut grid_buffer = vec![];
     let mut band_buffer = vec![];
 
@@ -105,9 +105,9 @@ fn generate_grid(bands: &Vec<Band>, del_f: f32, neg: i32) -> (Vec<f32>, Vec<usiz
 }
 
 // Used internally to generate the grid.
-fn band_coefficients(bands: &Vec<Band>, del_f: f32, l_band: usize, neg: i32) -> Vec<f32> {
+fn band_coefficients(bands: &Vec<Band>, del_f: f32, l_band: usize, neg: bool) -> Vec<f32> {
     let mut coefficients = vec![];
-    if l_band == 0 && neg != 0 && bands[0].lower_edge < del_f {
+    if l_band == 0 && neg && bands[0].lower_edge < del_f {
         coefficients.push(del_f);
     } else {
         coefficients.push(bands[l_band].lower_edge);

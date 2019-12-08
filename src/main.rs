@@ -55,31 +55,31 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     assert!(l_grid > 0);
 
     let neg = match j_type {
-        JType::MultipleBand => 0,
-        JType::Differentiator => 1,
-        JType::Hilbert => 1,
+        JType::MultipleBand => false,
+        JType::Differentiator => true,
+        JType::Hilbert => true,
     };
 
-    let n_odd = if n_filt % 2 == 0 { 0 } else { 1 };
+    let odd = n_filt % 2 != 0;
 
     // The number of unique coefficients in the resulting filter
     // (half will be reflected around the midpoint, but we need to include the center for odd N)
     let mut num_coefficients = n_filt / 2;
-    if n_odd == 1 && neg == 0 {
+    if odd && !neg {
         num_coefficients += 1;
     }
     let num_coefficients = num_coefficients;
 
     // Set up the dense grid.
-    let mut grid = DenseGrid::new(&bands, j_type, n_filt, l_grid, num_coefficients, neg, n_odd);
+    let mut grid = DenseGrid::new(&bands, j_type, n_filt, l_grid, num_coefficients, neg, odd);
 
     let n_grid = grid.n_grid();
 
     // Set up a new approximation problem which is equivalent to the original problem.
     // TODO: This can probably be rolled into the DenseGrid struct?
     //       Although it's kinda not really the same thing...
-    if neg == 0 {
-        if n_odd == 1 {
+    if !neg {
+        if odd {
             // NOP (?)
         } else {
             for j in 1..(grid.n_grid()+1) {
@@ -92,7 +92,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         }
     }
     else {
-        let constant = if n_odd == 1 { PI2 } else { PI };
+        let constant = if odd { PI2 } else { PI };
         for j in 1..(grid.n_grid()+1) {
             let change = (constant * grid.get_grid(j-1) as f64).sin() as f32;
             let temp_des = grid.get_des(j-1);
@@ -120,8 +120,8 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 
     // Calculate the impulse response.
     let mut h = [0.0f32; 66];
-    if neg == 0 {
-        if n_odd == 0 {
+    if !neg {
+        if !odd {
             h[0] = 0.25 * alpha[num_coefficients -1];
             for j in 2..(nm1+1) {
                 let nzmj = nz-j;
@@ -137,7 +137,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
             h[num_coefficients -1] = alpha[0];
         }
     } else {
-        if n_odd == 0 {
+        if !odd {
             h[0] = 0.25 * alpha[num_coefficients -1];
             for j in 2..(nm1+1) {
                 let nzmj = nz-j;
@@ -190,7 +190,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         parks_mcclellan_output.impulse_response.push(h[j-1]);
     }
     println!();
-    if neg == 1 && n_odd == 1 {
+    if neg && odd {
         parks_mcclellan_output.impulse_response.push(0.0);
     }
 
