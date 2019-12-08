@@ -6,6 +6,7 @@ const PI2: f64 = PI * 2.0;
 
 pub struct DenseGrid {
     grid: Vec<f32>,
+    grid_band: Vec<usize>, // which parts of the grid correspond to which bands
     des: [f32; 1045], // num elements?
     wt: [f32; 1045], // num elements?
     del_f: f32,
@@ -15,23 +16,24 @@ pub struct DenseGrid {
 impl DenseGrid {
     pub fn new(bands: &Vec<Band>, j_type: JType, filter_length: usize, grid_density: usize, num_coefficients: usize, neg: i32, n_odd: i32) -> Self {
         let del_f = 0.5 / ((grid_density as f32) * (num_coefficients as f32));
-        let grid = generate_grid(bands, del_f, neg);
-        
-        let mut grid = Self {
+        let (grid, grid_band) = generate_grid(bands, del_f, neg);
+
+        let des = generate_des(bands, j_type, &grid, &grid_band);
+        let wt = generate_wt(bands, j_type, &grid, &grid_band);
+
+        let mut n_grid = grid.len();
+        if neg == n_odd && grid[n_grid-1] > (0.5 - del_f) {
+            n_grid -= 1;
+        }
+
+        Self {
             grid,
-            des: [0.0; 1045], // Will be filled in after
-            wt: [0.0; 1045], // Will be filled in after
+            grid_band,
+            des,
+            wt,
             del_f,
-            n_grid: 0, // Will be filled in after
-        };
-
-        let (des, wt, n_grid) = grid.generate_des_wt(bands, j_type, neg, n_odd);
-
-        grid.des = des;
-        grid.wt = wt;
-        grid.n_grid = n_grid;
-
-        grid
+            n_grid,
+        }
     }
 
     pub fn get_grid(&self, index: usize) -> f32 {
@@ -62,47 +64,6 @@ impl DenseGrid {
         self.n_grid
     }
 
-    // Used internally to generate `des` and `wt`
-    fn generate_des_wt(&self, bands: &Vec<Band>, j_type: JType, neg: i32, n_odd: i32) -> ([f32; 1045], [f32; 1045], usize) {
-        let mut des = [0.0f32; 1045];
-        let mut wt = [0.0f32; 1045];
-
-        let mut j = 1;
-        let mut l_band = 1;
-        loop {
-            let f_up = bands[l_band-1].upper_edge;
-            let new_grid_value = self.get_grid(j-1) + self.del_f();
-
-            if new_grid_value > f_up {
-                l_band = l_band + 1;
-            }
-
-            if new_grid_value <= f_up {
-                des[j-1] = eff(&bands, self.get_grid(j-1), l_band, j_type);
-                wt[j-1] = wate(&bands, self.get_grid(j-1), l_band, j_type);
-            } else {
-                des[j-1] = eff(&bands, f_up, l_band-1, j_type);
-                wt[j-1] = wate(&bands, f_up, l_band-1, j_type);
-            }
-
-            if new_grid_value > f_up && l_band > bands.len() {
-                break;
-            }
-            j += 1;
-        }
-        j += 1;
-
-        let mut n_grid = j-1;
-
-        if neg == n_odd {
-            if self.get_grid(n_grid-1) > (0.5 - self.del_f()) {
-                n_grid = n_grid - 1;
-            }
-        }
-
-        (des, wt, n_grid)
-    }
-
     // Function to evaluate the frequency response using the lagrange interpolation formula
     // in the barycentric form
     pub fn gee(&self, zeroth_value_override: Option<f32>, x: &[f64; 66], y: &[f64; 66], ad: &[f64; 66], k: i64, n: usize) -> f64 {
@@ -128,16 +89,19 @@ impl DenseGrid {
 }
 
 // Used internally to generate the grid.
-fn generate_grid(bands: &Vec<Band>, del_f: f32, neg: i32) -> Vec<f32> {
-    let mut new_buffer = vec![];
+fn generate_grid(bands: &Vec<Band>, del_f: f32, neg: i32) -> (Vec<f32>, Vec<usize>) {
+    let mut grid_buffer = vec![];
+    let mut band_buffer = vec![];
+
     for b in 0..bands.len() {
         let band_coefficients = band_coefficients(&bands, del_f, b, neg);
         for coeff in band_coefficients {
-            new_buffer.push(coeff);
+            grid_buffer.push(coeff);
+            band_buffer.push(b);
         }
     }
 
-    new_buffer
+    (grid_buffer, band_buffer)
 }
 
 // Used internally to generate the grid.
@@ -163,18 +127,63 @@ fn band_coefficients(bands: &Vec<Band>, del_f: f32, l_band: usize, neg: i32) -> 
     coefficients
 }
 
+// used internally to generate `des`
+// des = "desired value"
+fn generate_des(bands: &Vec<Band>, j_type: JType, grid: &Vec<f32>, grid_band: &Vec<usize>) -> [f32; 1045] {
+    let mut des = [0.0f32; 1045];
+
+    for j in 0..grid.len() {
+        // Which band does this grid index correspond to?
+        let band_number = grid_band[j];
+
+        let f_up = bands[band_number].upper_edge;
+        let new_grid_value = grid[j];
+
+        if new_grid_value < f_up {
+            des[j] = eff(&bands, grid[j], band_number, j_type);
+        } else {
+            des[j] = eff(&bands, f_up, band_number, j_type);
+        }
+    }
+
+    des
+}
+
+// used internally to generate `wt`
+// wt = "weight"
+fn generate_wt(bands: &Vec<Band>, j_type: JType, grid: &Vec<f32>, grid_band: &Vec<usize>) -> [f32; 1045] {
+    let mut wt = [0.0f32; 1045];
+
+    for j in 0..grid.len() {
+        // Which band does this grid index correspond to?
+        let band_number = grid_band[j];
+
+        let f_up = bands[band_number].upper_edge;
+        let new_grid_value = grid[j];
+
+        if new_grid_value < f_up {
+            wt[j] = wate(&bands, grid[j], band_number, j_type);
+        } else {
+            wt[j] = wate(&bands, f_up, band_number, j_type);
+        }
+    }
+
+    wt
+}
+
 // Used internally to generate `des`
 // Function to calculate the desired magnitude response as a function of frequency.
 // An arbitrary function of frequency can be approximated if the user replaces this function
 // with the appropriate code to evaluate the ideal magnitude.
 // Note that the parameter `freq` is the value of **normalized** frequency needed for evaluation.
 fn eff(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
+    println!("band: {} | band_freq: {}", l_band, bands[l_band].desired_value);
     match j_type {
         JType::Differentiator => {
-            bands[l_band-1].desired_value * freq
+            bands[l_band].desired_value * freq
         },
         _ => {
-            bands[l_band-1].desired_value
+            bands[l_band].desired_value
         },
     }
 }
@@ -186,14 +195,14 @@ fn eff(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
 fn wate(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
     match j_type {
         JType::Differentiator => {
-            if bands[l_band-1].desired_value < 0.0001 {
-                bands[l_band-1].weight
+            if bands[l_band].desired_value < 0.0001 {
+                bands[l_band].weight
             } else {
-                bands[l_band-1].weight / freq
+                bands[l_band].weight / freq
             }
         },
         _ => {
-            bands[l_band-1].weight
+            bands[l_band].weight
         }
     }
 }

@@ -82,7 +82,7 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         if n_odd == 1 {
             // NOP (?)
         } else {
-            for j in 1..(n_grid+1) {
+            for j in 1..(grid.n_grid()+1) {
                 let change: f32 = (PI * grid.get_grid(j-1) as f64).cos() as f32;
                 let temp_des = grid.get_des(j-1);
                 grid.set_des(j-1, temp_des / change);
@@ -92,42 +92,31 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         }
     }
     else {
-        if n_odd == 1 {
-            // NOTE: PI2
-            for j in 1..(n_grid+1) {
-                let change = (PI2 * grid.get_grid(j-1) as f64).sin() as f32;
-                let temp_des = grid.get_des(j-1);
-                grid.set_des(j-1, temp_des / change);
-                let temp_wt = grid.get_wt(j-1);
-                grid.set_wt(j-1, temp_wt*change);
-            }
-        } else {
-            // NOTE: PI
-            for j in 1..(n_grid+1) {
-                let change = (PI * grid.get_grid(j-1) as f64).sin() as f32;
-                let temp_des = grid.get_des(j-1);
-                grid.set_des(j-1, temp_des / change);
-                let temp_wt = grid.get_wt(j-1);
-                grid.set_wt(j-1, temp_wt*change);
-            }
+        let constant = if n_odd == 1 { PI2 } else { PI };
+        for j in 1..(grid.n_grid()+1) {
+            let change = (constant * grid.get_grid(j-1) as f64).sin() as f32;
+            let temp_des = grid.get_des(j-1);
+            grid.set_des(j-1, temp_des / change);
+            let temp_wt = grid.get_wt(j-1);
+            grid.set_wt(j-1, temp_wt*change);
         }
     }
 
     // Initial guess for the extremal frequencies: equally spaced along the grid.
     let mut iext = [0; 66];
-    let temp = ((n_grid-1) as f32) / (num_coefficients as f32);
+    let temp = ((grid.n_grid()-1) as f32) / (num_coefficients as f32);
     for j in 1..(num_coefficients +1) {
         let xt = j-1;
         iext[j-1] = ((xt as f32) * temp + 1.0) as i64;
     }
-    iext[num_coefficients] = n_grid as i64; // iext[nfcns+1-1]
+    iext[num_coefficients] = grid.n_grid() as i64; // iext[nfcns+1-1]
     let nm1 = num_coefficients - 1;
     let nz = num_coefficients + 1;
 
     // Call the remez exchange algorithm to do the approximation problem.
     let mut alpha = [0.0f32; 66];
     let mut dev: f64 = 0.0;
-    remez(num_coefficients, &mut iext, n_grid, &grid, &mut alpha, &mut dev);
+    remez(num_coefficients, &grid, &mut iext, &mut alpha, &mut dev);
 
     // Calculate the impulse response.
     let mut h = [0.0f32; 66];
@@ -266,9 +255,8 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 // so I'm just going to model it as a state machine. I'll clean it up later.
 fn remez(
     nfcns: usize,
-    iext: &mut [i64; 66],
-    n_grid: usize,
     grid: &DenseGrid,
+    iext: &mut [i64; 66],
     alpha: &mut [f32; 66],
     dev: &mut f64,
 ) {
@@ -305,7 +293,7 @@ fn remez(
     loop {
         match state {
             100 => {
-                iext[nzz-1] = n_grid as i64 + 1;
+                iext[nzz-1] = grid.n_grid() as i64 + 1;
                 niter += 1;
                 println!("niter: {}", niter);
                 if niter > itrmax {
@@ -537,7 +525,7 @@ fn remez(
                 state = 325; continue; // fall through to 325
             },
             325 => {
-                L = n_grid as i64 + 1;
+                L = grid.n_grid() as i64 + 1;
                 klow = knz;
                 nut = -nut1;
                 comp = Some(y1.unwrap() * 1.00001);
@@ -599,7 +587,7 @@ fn remez(
                 let delf = 1.0f32 / (cn as f32);
                 L = 1;
                 let mut kkk = 0;
-                if grid.get_grid(0) < 0.01 && grid.get_grid(n_grid-1) > 0.49 {
+                if grid.get_grid(0) < 0.01 && grid.get_grid(grid.n_grid()-1) > 0.49 {
                     kkk = 1;
                 }
                 if nfcns <= 3 {
@@ -608,7 +596,7 @@ fn remez(
 
                 if kkk != 1 {
                     let dtemp = (PI2 * grid.get_grid(0) as f64).cos();
-                    let dnum = (PI2 * grid.get_grid(n_grid-1) as f64).cos();
+                    let dnum = (PI2 * grid.get_grid(grid.n_grid()-1) as f64).cos();
                     aa = (2.0 / (dtemp - dnum)) as f32;
                     bb = (-(dtemp + dnum) / (dtemp - dnum)) as f32;
                 }
@@ -756,17 +744,23 @@ fn d_func(x: &[f64; 66], k: usize, n: usize, m: usize) -> f64 {
 fn main() {
     let mut bands = vec![];
     bands.push(Band {
-        lower_edge: 0f32,
-        upper_edge: 0.35f32,
-        desired_value: 0f32,
-        weight: 3f32,
+        lower_edge: 0.0,
+        upper_edge: 0.1,
+        desired_value: 0.0,
+        weight: 10.0,
     });
     bands.push(Band {
-        lower_edge: 0.4f32,
-        upper_edge: 0.5f32,
-        desired_value: 1f32,
-        weight: 1f32,
+        lower_edge: 0.2,
+        upper_edge: 0.35,
+        desired_value: 1.0,
+        weight: 1.0,
+    });
+    bands.push(Band {
+        lower_edge: 0.425,
+        upper_edge: 0.5,
+        desired_value: 0.0,
+        weight: 10.0,
     });
 
-    let _pm_output = design(10, JType::MultipleBand, &bands, 16);
+    let pm_output = design(32, JType::MultipleBand, &bands, 16);
 }
