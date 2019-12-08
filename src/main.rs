@@ -264,14 +264,14 @@ fn remez(
     let mut niter = 0;
 
     let mut state = 100;
-    loop {
+    'state_machine: loop {
         match state {
             100 => {
                 iext[nzz-1] = grid.n_grid() as i64 + 1;
                 niter += 1;
                 println!("niter: {}", niter);
                 if niter > itrmax {
-                    state = 400; continue; // GOTO 400
+                    state = 400; continue 'state_machine; // GOTO 400
                 }
                 for j in 1..(nz+1) {
                     let jxt = iext[j-1];
@@ -318,7 +318,7 @@ fn remez(
                     println!("Number of iterations: {}", niter);
                     println!("If the number of iterations is greater than 3,");
                     println!("the design might be correct, but should be verified by FFT.");
-                    state = 400; continue; // GOTO 400
+                    state = 400; continue 'state_machine; // GOTO 400
                 }
 
                 devl = *dev as f32;
@@ -328,7 +328,7 @@ fn remez(
                 klow = 0;
                 nut = -nu;
                 non_loop_j = 1;
-                state = 200; continue; // fall through to 200
+                state = 200; continue 'state_machine; // GOTO 200
 
             },
 
@@ -338,7 +338,171 @@ fn remez(
                     ynz = comp;
                 }
                 if non_loop_j >= nzz {
-                    state = 300; continue; // GOTO 300
+                    if non_loop_j > nzz {
+                        if luck > 9 {
+                            let kn = iext[nzz-1];
+                            for j in 1..(nfcns+1) {
+                                iext[j-1] = iext[j] // j+1-1
+                            }
+                            iext[nz-1] = kn;
+                            state = 100; continue 'state_machine; // GOTO 100 (next iteration!)
+                        }
+                        if comp.unwrap() > y1.unwrap() {
+                            y1 = comp;
+                        }
+                        k1 = iext[nzz-1];
+                        L = grid.n_grid() as i64 + 1;
+                        klow = knz;
+                        nut = -nut1;
+                        comp = Some(y1.unwrap() * 1.00001);
+                        'loop_11: loop {
+                            L = L-1;
+                            if L <= klow {
+                                if luck == 6 {
+                                    if jchnge > 0 {
+                                        state = 100; continue 'state_machine; // GOTO 100 (next iteration!)
+                                    }
+                                    state = 400; continue 'state_machine; // GOTO 400
+                                }
+                                for j in 1..(nfcns+1) {
+                                    let nzzmj = nzz - j;
+                                    let nzmj = nz - j;
+                                    iext[nzzmj-1] = iext[nzmj-1];
+                                }
+                                iext[0] = k1;
+                                state = 100; continue 'state_machine; // GOTO 100 (next iteration!)
+                            }
+                            err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                            err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                            if dtemp <= 0.0 {
+                                continue 'loop_11;
+                            }
+                            non_loop_j = nzz;
+                            comp = Some((nut as f64) * (err as f64));
+                            luck += 10;
+                            'loop_12: loop {
+                                L = L - 1;
+                                if L <= klow {
+                                    klow = iext[non_loop_j-1];
+                                    iext[non_loop_j-1] = L+1;
+                                    non_loop_j += 1;
+                                    jchnge += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    klow = iext[non_loop_j-1];
+                                    iext[non_loop_j-1] = L+1;
+                                    non_loop_j += 1;
+                                    jchnge += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                            }
+                        }
+                    }
+                    if k1 > iext[0] {
+                        k1 = iext[0];
+                    }
+                    if knz < iext[nz-1] {
+                        knz = iext[nz-1];
+                    }
+                    nut1 = nut;
+                    nut = -nu;
+                    L = 0;
+                    kup = k1;
+                    comp = Some(ynz.unwrap() * 1.00001);
+                    luck = 1;
+                    'loop_06: loop {
+                        L = L+1;
+                        if L >= kup {
+                            luck = 6;
+                            L = grid.n_grid() as i64 + 1;
+                            klow = knz;
+                            nut = -nut1;
+                            comp = Some(y1.unwrap() * 1.00001);
+                            'loop_07: loop {
+                                L = L-1;
+                                if L <= klow {
+                                    if luck == 6 {
+                                        if jchnge > 0 {
+                                            state = 100; continue 'state_machine; // GOTO 100 (next iteration!)
+                                        }
+                                        state = 400; continue 'state_machine; // GOTO 400
+                                    }
+                                    for j in 1..(nfcns+1) {
+                                        let nzzmj = nzz - j;
+                                        let nzmj = nz - j;
+                                        iext[nzzmj-1] = iext[nzmj-1];
+                                    }
+                                    iext[0] = k1;
+                                    state = 100; continue 'state_machine; // GOTO 100 (next iteration!)
+                                }
+                                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    continue 'loop_07;
+                                }
+                                non_loop_j = nzz;
+                                comp = Some((nut as f64) * (err as f64));
+                                luck += 10;
+                                'loop_08: loop {
+                                    L = L - 1;
+                                    if L <= klow {
+                                        klow = iext[non_loop_j-1];
+                                        iext[non_loop_j-1] = L+1;
+                                        non_loop_j += 1;
+                                        jchnge += 1;
+                                        state = 200; continue 'state_machine; // GOTO 200
+                                    }
+                                    err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                    err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                    let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                    if dtemp <= 0.0 {
+                                        klow = iext[non_loop_j-1];
+                                        iext[non_loop_j-1] = L+1;
+                                        non_loop_j += 1;
+                                        jchnge += 1;
+                                        state = 200; continue 'state_machine; // GOTO 200
+                                    }
+                                    comp = Some((nut as f64) * (err as f64));
+                                }
+                            }
+                        }
+                        err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                        err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                        if dtemp <= 0.0 {
+                            continue 'loop_06;
+                        }
+                        comp = Some((nut as f64) * (err as f64));
+                        non_loop_j = nzz;
+                        'loop_10: loop {
+                            L = L + 1;
+                            if L >= kup {
+                                iext[non_loop_j-1] = L - 1;
+                                non_loop_j = non_loop_j + 1;
+                                klow = L - 1;
+                                jchnge = jchnge + 1;
+                                state = 200; continue 'state_machine; // GOTO 200
+                            }
+                            err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                            err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                            if dtemp <= 0.0 {
+                                iext[non_loop_j-1] = L - 1;
+                                non_loop_j = non_loop_j + 1;
+                                klow = L - 1;
+                                jchnge = jchnge + 1;
+                                state = 200; continue 'state_machine; // GOTO 200
+                            }
+                            comp = Some((nut as f64) * (err as f64));
+                        }
+                    }
                 }
                 kup = iext[non_loop_j]; // iext[j+1-1]
                 L = iext[non_loop_j-1] + 1;
@@ -348,204 +512,200 @@ fn remez(
                 }
                 comp = Some(*dev);
                 if L >= kup {
-                    state = 220; continue; // GOTO 220
+                    L = L - 1;
+                    'loop_03: loop {
+                        L = L - 1;
+                        if L <= klow {
+                            L = iext[non_loop_j-1] + 1;
+                            if jchnge > 0 {
+                                iext[non_loop_j-1] = L - 1;
+                                non_loop_j = non_loop_j + 1;
+                                klow = L - 1;
+                                jchnge = jchnge + 1;
+                                state = 200; continue 'state_machine; // GOTO 200
+                            }
+                            'loop_05: loop {
+                                L += 1;
+                                if L >= kup {
+                                    klow = iext[non_loop_j-1];
+                                    non_loop_j += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    continue 'loop_05;
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                                'loop_09: loop {
+                                    L = L + 1;
+                                    if L >= kup {
+                                        iext[non_loop_j-1] = L - 1;
+                                        non_loop_j = non_loop_j + 1;
+                                        klow = L - 1;
+                                        jchnge = jchnge + 1;
+                                        state = 200; continue 'state_machine; // GOTO 200
+                                    }
+                                    err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                    err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                    let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                    if dtemp <= 0.0 {
+                                        iext[non_loop_j-1] = L - 1;
+                                        non_loop_j = non_loop_j + 1;
+                                        klow = L - 1;
+                                        jchnge = jchnge + 1;
+                                        state = 200; continue 'state_machine; // GOTO 200
+                                    }
+                                    comp = Some((nut as f64) * (err as f64));
+                                }
+                            }
+                        }
+                        err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                        err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                        if dtemp > 0.0 {
+                            comp = Some((nut as f64) * (err as f64));
+                            'loop_04: loop {
+                                L = L - 1;
+                                if L <= klow {
+                                    klow = iext[non_loop_j-1];
+                                    iext[non_loop_j-1] = L+1;
+                                    non_loop_j += 1;
+                                    jchnge += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    klow = iext[non_loop_j-1];
+                                    iext[non_loop_j-1] = L+1;
+                                    non_loop_j += 1;
+                                    jchnge += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                            }
+                        }
+                        if jchnge <= 0 {
+                            continue 'loop_03;
+                        }
+                        klow = iext[non_loop_j-1];
+                        non_loop_j += 1;
+                        state = 200; continue 'state_machine; // GOTO 200
+                    }
                 }
                 err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
                 err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
                 let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                 if dtemp <= 0.0 {
-                    state = 220; continue; // GOTO 220
+                    L = L - 1;
+                    'loop_13: loop {
+                        L = L - 1;
+                        if L <= klow {
+                            L = iext[non_loop_j-1] + 1;
+                            if jchnge > 0 {
+                                iext[non_loop_j-1] = L - 1;
+                                non_loop_j = non_loop_j + 1;
+                                klow = L - 1;
+                                jchnge = jchnge + 1;
+                                state = 200; continue 'state_machine; // GOTO 200
+                            }
+                            'loop_15: loop {
+                                L += 1;
+                                if L >= kup {
+                                    klow = iext[non_loop_j-1];
+                                    non_loop_j += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    continue 'loop_15;
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                                'loop_19: loop {
+                                    L = L + 1;
+                                    if L >= kup {
+                                        iext[non_loop_j-1] = L - 1;
+                                        non_loop_j = non_loop_j + 1;
+                                        klow = L - 1;
+                                        jchnge = jchnge + 1;
+                                        state = 200; continue 'state_machine; // GOTO 200
+                                    }
+                                    err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                    err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                    let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                    if dtemp <= 0.0 {
+                                        iext[non_loop_j-1] = L - 1;
+                                        non_loop_j = non_loop_j + 1;
+                                        klow = L - 1;
+                                        jchnge = jchnge + 1;
+                                        state = 200; continue 'state_machine; // GOTO 200
+                                    }
+                                    comp = Some((nut as f64) * (err as f64));
+                                }
+                            }
+                        }
+                        err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                        err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                        if dtemp > 0.0 {
+                            comp = Some((nut as f64) * (err as f64));
+                            'loop_14: loop {
+                                L = L - 1;
+                                if L <= klow {
+                                    klow = iext[non_loop_j-1];
+                                    iext[non_loop_j-1] = L+1;
+                                    non_loop_j += 1;
+                                    jchnge += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    klow = iext[non_loop_j-1];
+                                    iext[non_loop_j-1] = L+1;
+                                    non_loop_j += 1;
+                                    jchnge += 1;
+                                    state = 200; continue 'state_machine; // GOTO 200
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                            }
+                        }
+                        if jchnge <= 0 {
+                            continue 'loop_13;
+                        }
+                        klow = iext[non_loop_j-1];
+                        non_loop_j += 1;
+                        state = 200; continue 'state_machine; // GOTO 200
+                    }
                 }
                 comp = Some((nut as f64) * (err as f64));
-                state = 210; continue; // fall through to 210
-            },
-            210 => {
-                L = L + 1;
-                if L >= kup {
-                    state = 215; continue; // GOTO 215
+                'loop_02: loop {
+                    L = L + 1;
+                    if L >= kup {
+                        iext[non_loop_j-1] = L - 1;
+                        non_loop_j = non_loop_j + 1;
+                        klow = L - 1;
+                        jchnge = jchnge + 1;
+                        state = 200; continue 'state_machine; // GOTO 200
+                    }
+                    err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
+                    err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
+                    let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                    if dtemp <= 0.0 {
+                        iext[non_loop_j-1] = L - 1;
+                        non_loop_j = non_loop_j + 1;
+                        klow = L - 1;
+                        jchnge = jchnge + 1;
+                        state = 200; continue 'state_machine; // GOTO 200
+                    }
+                    comp = Some((nut as f64) * (err as f64));
                 }
-                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp <= 0.0 {
-                    state = 215; continue; // GOTO 215
-                }
-                comp = Some((nut as f64) * (err as f64));
-                state = 210; continue; // GOTO 210 (self loop)
-            },
-            215 => {
-                iext[non_loop_j-1] = L - 1;
-                non_loop_j = non_loop_j + 1;
-                klow = L - 1;
-                jchnge = jchnge + 1;
-                state = 200; continue; // GOTO 200
-            },
-            220 => {
-                L = L - 1;
-                state = 225; continue; // fall through to 225
-            },
-            225 => {
-                L = L - 1;
-                if L <= klow {
-                    state = 250; continue; // GOTO 250
-                }
-                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp > 0.0 {
-                    state = 230; continue; // GOTO 230
-                }
-                if jchnge <= 0 {
-                    state = 225; continue; // GOTO 225 (self loop)
-                }
-                state = 260; continue; // GOTO 260
-            },
-            230 => {
-                comp = Some((nut as f64) * (err as f64));
-                state = 235; continue; // fall through to 235
-            },
-            235 => {
-                L = L - 1;
-                if L <= klow {
-                    state = 240; continue; // GOTO 240
-                }
-                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp <= 0.0 {
-                    state = 240; continue; // GOTO 240
-                }
-                comp = Some((nut as f64) * (err as f64));
-                state = 235; continue; // GOTO 235 (self loop)
-            },
-            240 => {
-                klow = iext[non_loop_j-1];
-                iext[non_loop_j-1] = L+1;
-                non_loop_j += 1;
-                jchnge += 1;
-                state = 200; continue; // GOTO 200
-            },
-            250 => {
-                L = iext[non_loop_j-1] + 1;
-                if jchnge > 0 {
-                    state = 215; continue; // GOTO 215
-                }
-                state = 255; continue; // fall through to 255
-            },
-            255 => {
-                L += 1;
-                if L >= kup {
-                    state = 260; continue; // GOTO 260
-                }
-                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp <= 0.0 {
-                    state = 255; continue; // GOTO 255 (self loop)
-                }
-                comp = Some((nut as f64) * (err as f64));
-                state = 210; continue; // GOTO 210
-            },
-            260 => {
-                klow = iext[non_loop_j-1];
-                non_loop_j += 1;
-                state = 200; continue; // GOTO 200
-            },
-            300 => {
-                if non_loop_j > nzz {
-                    state = 320; continue; // GOTO 320
-                }
-                if k1 > iext[0] {
-                    k1 = iext[0];
-                }
-                if knz < iext[nz-1] {
-                    knz = iext[nz-1];
-                }
-                nut1 = nut;
-                nut = -nu;
-                L = 0;
-                kup = k1;
-                comp = Some(ynz.unwrap() * 1.00001);
-                luck = 1;
-                state = 310; continue; // fall through to 310
-            },
-            310 => {
-                L = L+1;
-                if L >= kup {
-                    state = 315; continue; // GOTO 315
-                }
-                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp <= 0.0 {
-                    state = 310; continue; // GOTO 310 (self loop)
-                }
-                comp = Some((nut as f64) * (err as f64));
-                non_loop_j = nzz;
-                state = 210; continue; // GOTO 210
-            },
-            315 => {
-                luck = 6;
-                state = 325; continue; // GOTO 325
-            },
-            320 => {
-                if luck > 9 {
-                    state = 350; continue; // GOTO 350
-                }
-                if comp.unwrap() > y1.unwrap() {
-                    y1 = comp;
-                }
-                k1 = iext[nzz-1];
-                state = 325; continue; // fall through to 325
-            },
-            325 => {
-                L = grid.n_grid() as i64 + 1;
-                klow = knz;
-                nut = -nut1;
-                comp = Some(y1.unwrap() * 1.00001);
-                state = 330; continue; // fall through to 330
-            },
-            330 => {
-                L = L-1;
-                if L <= klow {
-                    state = 340; continue; // GOTO 340
-                }
-                err = grid.gee(None, &x, &y, &ad, L, nz) as f32;
-                err = (err - grid.get_des((L-1) as usize)) * grid.get_wt((L-1) as usize);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp <= 0.0 {
-                    state = 330; continue; // GOTO 330 (self loop)
-                }
-                non_loop_j = nzz;
-                comp = Some((nut as f64) * (err as f64));
-                luck += 10;
-                state = 235; continue; // GOTO 235
-            },
-            340 => {
-                if luck == 6 {
-                    state = 370; continue; // GOTO 370
-                }
-                for j in 1..(nfcns+1) {
-                    let nzzmj = nzz - j;
-                    let nzmj = nz - j;
-                    iext[nzzmj-1] = iext[nzmj-1];
-                }
-                iext[0] = k1;
-                state = 100; continue; // GOTO 100 (next iteration!)
-            },
-            350 => {
-                let kn = iext[nzz-1];
-                for j in 1..(nfcns+1) {
-                    iext[j-1] = iext[j] // j+1-1
-                }
-                iext[nz-1] = kn;
-                state = 100; continue; // GOTO 100 (next iteration!)
-            },
-            370 => {
-                if jchnge > 0 {
-                    state = 100; continue; // GOTO 100 (next iteration!)
-                }
-                state = 400; continue; // fall through to 400
             },
 
             // Calculation of the coefficients of the best approximation using the inverse DFT
@@ -586,22 +746,22 @@ fn remez(
                         ft = (xt1.atan2(xt) as f64 / PI2) as f32;
                     }
 
-                    loop {
+                    'loop_01: loop {
                         let xe: f32 = x[(L-1) as usize] as f32;
                         if xt > xe {
                             if (xt-xe) < fsh {
                                 a[j-1] = y[(L-1) as usize];
-                                break; // Stop looping
+                                break 'loop_01;
                             } else {
                                 a[j - 1] = grid.gee(Some(ft), &x, &y, &ad, 1, nz);
-                                break; // Stop looping
+                                break 'loop_01;
                             }
                         } else if (xe-xt) < fsh {
                             a[j-1] = y[(L-1) as usize];
-                            break; // Stop looping
+                            break 'loop_01;
                         } else {
                             L = L+1;
-                            continue; // Loop again
+                            continue 'loop_01;
                         }
                     }
 
