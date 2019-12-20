@@ -350,7 +350,27 @@ fn remez(
                         }
                         non_loop_j = coefficient_off_end_index;
                         luck += 10;
-                        common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut local_ell, &mut err, &mut comp, nut, last_coefficient_index);
+
+                        comp = Some((nut as f64) * (err as f64));
+
+                        loop {
+                            local_ell -= 1;
+                            if local_ell <= klow {
+                                break;
+                            }
+                            err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
+                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                            if dtemp <= 0.0 {
+                                break;
+                            }
+                            comp = Some((nut as f64) * (err as f64));
+                        }
+
+                        klow = extremal_frequencies.get_grid_index(non_loop_j-1);
+                        extremal_frequencies.set_grid_index(non_loop_j-1, local_ell+1);
+                        non_loop_j += 1;
+                        jchnge += 1;
+
                         continue 'state_200;
                     }
                 }
@@ -376,28 +396,49 @@ fn remez(
                         klow = knz;
                         nut = -nut1;
                         comp = Some(y1.unwrap() * 1.00001);
-                        'loop_07: loop {
-                            ell = ell-1;
-                            if ell <= klow {
-                                if luck == 6 {
-                                    if jchnge > 0 {
-                                        continue 'state_100;
-                                    }
-                                    break 'state_100;
-                                }
-                                extremal_frequencies.shift_grid_indexes_right(k1);
+
+                        ell = ell-1;
+                        if ell <= klow {
+                            if jchnge > 0 {
                                 continue 'state_100;
                             }
-                            let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                            break 'state_100;
+                        }
+                        let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+
+                        'loop_07: while (nut as f64) * (err as f64) - comp.unwrap() <= 0.0 {
+                            ell = ell-1;
+                            if ell <= klow {
+                                if jchnge > 0 {
+                                    continue 'state_100;
+                                }
+                                break 'state_100;
+                            }
+                            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                        }
+
+                        non_loop_j = coefficient_off_end_index;
+                        luck += 10;
+                        comp = Some((nut as f64) * (err as f64));
+
+                        loop {
+                            ell -= 1;
+                            if ell <= klow {
+                                break;
+                            }
+                            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                             let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                             if dtemp <= 0.0 {
-                                continue 'loop_07;
+                                break;
                             }
-                            non_loop_j = coefficient_off_end_index;
-                            luck += 10;
-                            common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
-                            continue 'state_200;
+                            comp = Some((nut as f64) * (err as f64));
                         }
+
+                        klow = extremal_frequencies.get_grid_index(non_loop_j-1);
+                        extremal_frequencies.set_grid_index(non_loop_j-1, ell+1);
+                        non_loop_j += 1;
+                        jchnge += 1;
+                        continue 'state_200;
                     }
                     let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                     let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
@@ -405,7 +446,27 @@ fn remez(
                         continue 'loop_06;
                     }
                     non_loop_j = coefficient_off_end_index;
-                    common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+
+                    comp = Some((nut as f64) * (err as f64));
+
+                    loop {
+                        ell = ell + 1;
+                        if ell >= kup {
+                            break;
+                        }
+                        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                        if dtemp <= 0.0 {
+                            break;
+                        }
+                        comp = Some((nut as f64) * (err as f64));
+                    }
+
+                    extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
+                    non_loop_j = non_loop_j + 1;
+                    klow = ell - 1;
+                    jchnge = jchnge + 1;
+
                     continue 'state_200;
                 }
             }
@@ -441,14 +502,50 @@ fn remez(
                             if dtemp <= 0.0 {
                                 continue 'loop_05;
                             }
-                            common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+                            comp = Some((nut as f64) * (err as f64));
+
+                            loop {
+                                ell = ell + 1;
+                                if ell >= kup {
+                                    break;
+                                }
+                                err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    break;
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                            }
+
+                            extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
+                            non_loop_j = non_loop_j + 1;
+                            klow = ell - 1;
+                            jchnge = jchnge + 1;
                             continue 'state_200;
                         }
                     }
                     let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                     let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                     if dtemp > 0.0 {
-                        common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
+                        comp = Some((nut as f64) * (err as f64));
+
+                        loop {
+                            ell -= 1;
+                            if ell <= klow {
+                                break;
+                            }
+                            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                            if dtemp <= 0.0 {
+                                break;
+                            }
+                            comp = Some((nut as f64) * (err as f64));
+                        }
+
+                        klow = extremal_frequencies.get_grid_index(non_loop_j-1);
+                        extremal_frequencies.set_grid_index(non_loop_j-1, ell+1);
+                        non_loop_j += 1;
+                        jchnge += 1;
                         continue 'state_200;
                     }
                     if jchnge <= 0 {
@@ -486,14 +583,50 @@ fn remez(
                             if dtemp <= 0.0 {
                                 continue 'loop_15;
                             }
-                            common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+                            comp = Some((nut as f64) * (err as f64));
+
+                            loop {
+                                ell = ell + 1;
+                                if ell >= kup {
+                                    break;
+                                }
+                                err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                                if dtemp <= 0.0 {
+                                    break;
+                                }
+                                comp = Some((nut as f64) * (err as f64));
+                            }
+
+                            extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
+                            non_loop_j = non_loop_j + 1;
+                            klow = ell - 1;
+                            jchnge = jchnge + 1;
                             continue 'state_200;
                         }
                     }
                     err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                     let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                     if dtemp > 0.0 {
-                        common_loop_function_01(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, nut, last_coefficient_index);
+                        comp = Some((nut as f64) * (err as f64));
+
+                        loop {
+                            ell -= 1;
+                            if ell <= klow {
+                                break;
+                            }
+                            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                            if dtemp <= 0.0 {
+                                break;
+                            }
+                            comp = Some((nut as f64) * (err as f64));
+                        }
+
+                        klow = extremal_frequencies.get_grid_index(non_loop_j-1);
+                        extremal_frequencies.set_grid_index(non_loop_j-1, ell+1);
+                        non_loop_j += 1;
+                        jchnge += 1;
                         continue 'state_200;
                     }
                     if jchnge <= 0 {
@@ -504,7 +637,25 @@ fn remez(
                     continue 'state_200;
                 }
             }
-            common_loop_function_02(grid, extremal_frequencies, &x, &y, &ad, &mut non_loop_j, &mut klow, &mut jchnge, &mut ell, &mut err, &mut comp, kup, nut, last_coefficient_index);
+            comp = Some((nut as f64) * (err as f64));
+
+            loop {
+                ell = ell + 1;
+                if ell >= kup {
+                    break;
+                }
+                err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
+                if dtemp <= 0.0 {
+                    break;
+                }
+                comp = Some((nut as f64) * (err as f64));
+            }
+
+            extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
+            non_loop_j = non_loop_j + 1;
+            klow = ell - 1;
+            jchnge = jchnge + 1;
             continue 'state_200;
         }
     }
@@ -680,79 +831,6 @@ fn calculate_err(
 ) -> f32 {
     let err = grid.gee(zeroth_value_override, x, y, ad, ell, last_coefficient_index) as f32;
     (err - grid.get_des((ell - 1) as usize)) * grid.get_wt((ell - 1) as usize)
-}
-
-fn common_loop_function_01(
-    grid: &DenseGrid,
-    extremal_frequencies: &mut ExtremalFrequencies,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    non_loop_j: &mut usize,
-    klow: &mut i64,
-    jchnge: &mut i64,
-    ell: &mut i64,
-    err: &mut f32,
-    comp: &mut Option<f64>,
-    nut: i32,
-    last_coefficient_index: usize,
-) {
-    *comp = Some((nut as f64) * (*err as f64));
-
-    loop {
-        *ell = *ell - 1;
-        if ell <= klow {
-            break;
-        }
-        *err = calculate_err(grid, None, &x, &y, &ad, *ell, last_coefficient_index);
-        let dtemp = (nut as f64) * (*err as f64) - comp.unwrap();
-        if dtemp <= 0.0 {
-            break;
-        }
-        *comp = Some((nut as f64) * (*err as f64));
-    }
-
-    *klow = extremal_frequencies.get_grid_index(*non_loop_j-1);
-    extremal_frequencies.set_grid_index(*non_loop_j-1, *ell+1);
-    *non_loop_j += 1;
-    *jchnge += 1;
-}
-
-fn common_loop_function_02(
-    grid: &DenseGrid,
-    extremal_frequencies: &mut ExtremalFrequencies,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    non_loop_j: &mut usize,
-    klow: &mut i64,
-    jchnge: &mut i64,
-    ell: &mut i64,
-    err: &mut f32,
-    comp: &mut Option<f64>,
-    kup: i64,
-    nut: i32,
-    last_coefficient_index: usize,
-) {
-    *comp = Some((nut as f64) * (*err as f64));
-
-    loop {
-        *ell = *ell + 1;
-        if *ell >= kup {
-            break;
-        }
-        *err = calculate_err(grid, None, &x, &y, &ad, *ell, last_coefficient_index);
-        let dtemp = (nut as f64) * (*err as f64) - comp.unwrap();
-        if dtemp <= 0.0 {
-            break;
-        }
-        *comp = Some((nut as f64) * (*err as f64));
-    }
-
-    extremal_frequencies.set_grid_index(*non_loop_j-1, *ell-1);
-    *non_loop_j = *non_loop_j + 1;
-    *klow = *ell - 1;
-    *jchnge = *jchnge + 1;
 }
 
 fn main() {
