@@ -216,42 +216,53 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 // This function implements the Remez Exchange Algorithm for the weighted Chebyshev approximation
 // of a continuous function with a sum of cosines.
 // Inputs to the subroutine are:
-//  - a dense grid which replaces the frequency axis
-//  - the desired function on this grid
-//  - the number of cosines
+//  - the number of cosines (= number of coefficients of the filter)
+//  - a dense grid which replaces the frequency axis, along with the desired function on that grid
 //  - an initial guess of the extremal frequencies
 // The program minimizes the Chebyshev error by determining the best location of the extremal
 // frequencies (points of maximum error) and then calculates the coefficients of the best
 // approximation.
-// This function is a giant mess of GOTO spaghetti in the Fortran code,
-// so I'm just going to model it as a state machine. I'll clean it up later.
 fn remez(
     num_coefficients: usize,
     grid: &DenseGrid,
     extremal_frequencies: &mut ExtremalFrequencies,
 ) -> ([f32; 66], f64) {
-    // Outputs
-    let mut alpha = [0.0f32; 66];
-    let mut deviation: f64 = 0.0;
-
-    // Function-scoped data
+    // TODO: maybe move these into "state_100" and return them
     let mut x = [0.0f64; 66];
     let mut y = [0.0f64; 66];
-    let mut ad = [0.0; 66];
-    let mut nut1 = 0;
-    let mut luck = 0;
-    let mut aa = 0.0f32;
-    let mut bb = 0.0f32;
+    let mut ad = [0.0f64; 66];
 
+    // Iterate to find the best approximation
+    let deviation = state_100(&grid, num_coefficients, &mut x, &mut y, &mut ad, extremal_frequencies);
+
+    // Calculate the coefficients of the best approximation using the inverse DFT.
+    let alpha = calculate_alpha(num_coefficients, &grid, &mut x, &mut y, &mut ad);
+
+    (alpha, deviation)
+}
+
+fn state_100(
+    grid: &DenseGrid,
+    num_coefficients: usize,
+    x: &mut [f64; 66],
+    y: &mut [f64; 66],
+    ad: &mut [f64; 66],
+    extremal_frequencies: &mut ExtremalFrequencies,
+) -> f64 {
+    let mut deviation = 0.0;
+
+    let mut niter = 0;
+    let itrmax = 25; // Max number of iterations
+
+    let last_coefficient_index = num_coefficients + 1;
+    let coefficient_off_end_index = num_coefficients + 2;
+
+    let mut devl = -1.0f32;
+    let mut luck = 0;
+    let mut nut1 = 0;
     let mut ynz = None;
     let mut comp = None;
     let mut y1 = None;
-
-    let itrmax = 25; // Max number of iterations
-    let mut devl = -1.0f32;
-    let last_coefficient_index = num_coefficients + 1;
-    let coefficient_off_end_index = num_coefficients + 2;
-    let mut niter = 0;
 
     'state_100: loop {
         extremal_frequencies.set_grid_index(last_coefficient_index, grid.n_grid() as i64 + 1);
@@ -343,36 +354,32 @@ fn remez(
                             extremal_frequencies.shift_grid_indexes_right(k1);
                             continue 'state_100;
                         }
-                        let mut err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
+                        let err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
                         let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
                         if dtemp <= 0.0 {
                             continue 'loop_11;
                         }
-                        non_loop_j = coefficient_off_end_index;
-                        luck += 10;
-
-                        comp = Some((nut as f64) * (err as f64));
-
-                        loop {
-                            local_ell -= 1;
-                            if local_ell <= klow {
-                                break;
-                            }
-                            err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
-                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                            if dtemp <= 0.0 {
-                                break;
-                            }
-                            comp = Some((nut as f64) * (err as f64));
-                        }
-
-                        klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                        extremal_frequencies.set_grid_index(non_loop_j-1, local_ell+1);
-                        non_loop_j += 1;
-                        jchnge += 1;
-
-                        continue 'state_200;
+                        break 'loop_11;
                     }
+
+                    loop {
+                        let err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
+                        comp = Some((nut as f64) * (err as f64));
+                        local_ell -= 1;
+                        if local_ell <= klow {
+                            break;
+                        }
+                        if (nut as f64) * (err as f64) - comp.unwrap() <= 0.0 {
+                            break;
+                        }
+                    }
+                    non_loop_j = coefficient_off_end_index;
+                    klow = extremal_frequencies.get_grid_index(non_loop_j-1);
+                    extremal_frequencies.set_grid_index(non_loop_j-1, local_ell+1);
+                    non_loop_j += 1;
+                    jchnge += 1;
+                    luck += 10;
+                    continue 'state_200;
                 }
                 let zeroth_grid_index = extremal_frequencies.get_grid_index(0);
                 if k1 > zeroth_grid_index {
@@ -660,18 +667,29 @@ fn remez(
         }
     }
 
-    // Calculation of the coefficients of the best approximation using the inverse DFT
-    // By here, we're done iterating the Remez exchange algorithm, and we're mostly just
-    // calculating "outputs".
-    let mut a = [0.0f64; 66];
+    deviation
+}
 
-    let nm1 = num_coefficients - 1;
+fn calculate_alpha(
+    num_coefficients: usize,
+    grid: &DenseGrid,
+    x: &mut [f64; 66],
+    y: &mut [f64; 66],
+    ad: &mut [f64; 66],
+) -> [f32; 66] {
+    let last_coefficient_index = num_coefficients + 1;
+
+    let mut a = [0.0f64; 66];
+    let mut aa = 0.0f32;
+    let mut bb = 0.0f32;
+    let mut kkk = 0;
+
     let fsh: f32 = 1.0e-06;
-    x[coefficient_off_end_index -1] = -2.0;
+    x[last_coefficient_index] = -2.0;
     let cn = 2 * num_coefficients - 1;
     let delf = 1.0f32 / (cn as f32);
     let mut ell = 1;
-    let mut kkk = 0;
+
     if grid.get_grid(0) < 0.01 && grid.get_grid(grid.n_grid()-1) > 0.49 {
         kkk = 1;
     }
@@ -720,15 +738,19 @@ fn remez(
         }
     }
 
-    let dden = PI2 / (cn as f64);
+    let mut alpha = [0.0f32; 66];
 
-    for j in 1..(num_coefficients +1) {
+    let cn = 2 * num_coefficients - 1;
+    let dden = PI2 / (cn as f64);
+    let nm1 = num_coefficients - 1;
+
+    for j in 1..(num_coefficients + 1) {
         let mut dtemp = 0.0;
         let mut dnum = (j-1) as f64;
         dnum = dnum * dden;
         if nm1 >= 1 {
             for k in 1..(nm1+1) {
-                let dak = a[k]; // a[k+1-1]
+                let dak = a[k];
                 let dk = k as f64;
                 dtemp = dtemp + dak * (dnum*dk).cos();
             }
@@ -744,11 +766,11 @@ fn remez(
 
     if kkk == 1 {
         if num_coefficients > 3 {
-            return (alpha, deviation);
+            return alpha;
         }
         alpha[num_coefficients] = 0.0; // alpha[nfcns+1-1]
         alpha[num_coefficients +1] = 0.0; // alpha[nfcns+2-1]
-        return (alpha, deviation);
+        return alpha;
     }
 
     let mut p = [0.0f64; 65];
@@ -792,11 +814,12 @@ fn remez(
     }
 
     if num_coefficients > 3 {
-        return (alpha, deviation);
+        return alpha;
     }
-    alpha[num_coefficients] = 0.0; // alpha[nfcns+1-1]
-    alpha[num_coefficients +1] = 0.0; // alpha[nfcns+2-1]
-    return (alpha, deviation);
+    alpha[num_coefficients] = 0.0;
+    alpha[num_coefficients +1] = 0.0;
+
+    alpha
 }
 
 // Function to calculate the lagrange interpolation coefficients
