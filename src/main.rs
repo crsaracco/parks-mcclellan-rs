@@ -35,6 +35,7 @@ pub enum JType {
 #[derive(Clone)]
 pub struct ParksMcclellanOutput {
     pub filter_length: usize,
+    pub filter_type: JType,
     pub impulse_response: Vec<f32>,
     pub lower_band_edges: Vec<f32>,
     pub upper_band_edges: Vec<f32>,
@@ -90,6 +91,41 @@ fn calculate_impulse_response(alpha: &[f32; 66], num_coefficients: usize, odd: b
     impulse_response
 }
 
+fn print_filter_outputs(parks_mcclellan_output: &ParksMcclellanOutput) {
+    match parks_mcclellan_output.filter_type {
+        JType::MultipleBand => println!("BANDPASS FILTER"),
+        JType::Differentiator => println!("DIFFERENTIATOR"),
+        JType::Hilbert => println!("HILBERT TRANSFORMER"),
+    }
+    println!("Filter length: {}", parks_mcclellan_output.filter_length);
+    println!();
+    println!("***** IMPULSE RESPONSE *****");
+    for n in parks_mcclellan_output.impulse_response.iter() {
+        println!("{:e}", *n);
+    }
+    println!();
+    for k in 0..parks_mcclellan_output.lower_band_edges.len() {
+        println!("Band {}:", k);
+        println!("    lower edge: {}", parks_mcclellan_output.lower_band_edges[k]);
+        println!("    upper edge: {}", parks_mcclellan_output.upper_band_edges[k]);
+        match parks_mcclellan_output.filter_type {
+            JType::MultipleBand => println!("    desired value: {}", parks_mcclellan_output.desired_values[k]),
+            JType::Differentiator => println!("    desired slope: {}", parks_mcclellan_output.desired_values[k]),
+            JType::Hilbert => println!("    desired value: {}", parks_mcclellan_output.desired_values[k]),
+        }
+        println!("    weighting: {}", parks_mcclellan_output.weightings[k]);
+        println!("    deviation: {}", parks_mcclellan_output.deviations[k]);
+        match parks_mcclellan_output.filter_type {
+            JType::MultipleBand => println!("    deviation in dB: {}", parks_mcclellan_output.deviation_dbs[k]),
+            _ => {}
+        }
+    }
+    println!("Extremal frequencies (maxima of the error curve):");
+    for e in parks_mcclellan_output.extremal_frequencies.iter() {
+        println!("{}", *e);
+    }
+}
+
 // Note: l_grid is defaulted to 16 in the Parks-McClellan paper.
 fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> ParksMcclellanOutput {
     // The filter length must be [3, NF_MAX].
@@ -124,8 +160,6 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     grid.reformat_grid_for_remez(neg, odd);
     let grid = grid;
 
-    let last_coefficient_index = num_coefficients + 1;
-
     // Call the remez exchange algorithm to do the approximation problem.
     let (alpha, deviation, extremal_frequencies) = remez(num_coefficients, &grid);
 
@@ -134,7 +168,8 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
 
     // Program output section
     let mut parks_mcclellan_output = ParksMcclellanOutput {
-        filter_length: 0,
+        filter_length: n_filt,
+        filter_type: j_type,
         impulse_response: vec![],
         lower_band_edges: vec![],
         upper_band_edges: vec![],
@@ -144,68 +179,39 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
         deviation_dbs: vec![],
         extremal_frequencies: vec![],
     };
-
-    match j_type {
-        JType::MultipleBand => println!("BANDPASS FILTER"),
-        JType::Differentiator => println!("DIFFERENTIATOR"),
-        JType::Hilbert => println!("HILBERT TRANSFORMER"),
+    for j in 0..num_coefficients {
+        parks_mcclellan_output.impulse_response.push(impulse_response[j]);
     }
-    println!("Filter length: {}", n_filt);
-    parks_mcclellan_output.filter_length = n_filt;
-    println!();
-    println!("***** IMPULSE RESPONSE *****");
-    for j in 1..(num_coefficients+1) {
-        println!("{:e}", impulse_response[j-1]);
-        parks_mcclellan_output.impulse_response.push(impulse_response[j-1]);
-    }
-    println!();
     if neg && odd {
         parks_mcclellan_output.impulse_response.push(0.0);
     }
-
     for k in 0..bands.len() {
-        println!("Band {}:", k);
-        println!("    lower edge: {}", bands[k].lower_edge);
         parks_mcclellan_output.lower_band_edges.push(bands[k].lower_edge);
-        println!("    upper edge: {}", bands[k].upper_edge);
         parks_mcclellan_output.upper_band_edges.push(bands[k].upper_edge);
         match j_type {
-            JType::MultipleBand => {
-                println!("    desired value: {}", bands[k].desired_value);
-                parks_mcclellan_output.desired_values.push(bands[k].desired_value);
-            },
-            JType::Differentiator => {
-                println!("    desired slope: {}", bands[k].desired_value);
-                parks_mcclellan_output.desired_values.push(bands[k].desired_value);
-            },
-            JType::Hilbert => {
-                println!("    desired value: {}", bands[k].desired_value);
-                parks_mcclellan_output.desired_values.push(bands[k].desired_value);
-            },
+            JType::MultipleBand => parks_mcclellan_output.desired_values.push(bands[k].desired_value),
+            JType::Differentiator => parks_mcclellan_output.desired_values.push(bands[k].desired_value),
+            JType::Hilbert => parks_mcclellan_output.desired_values.push(bands[k].desired_value),
         }
-        println!("    weighting: {}", bands[k].weight);
         parks_mcclellan_output.weightings.push(bands[k].weight);
 
         let deviation = (deviation /(bands[k].weight as f64)) as f32;
-        println!("    deviation: {}", deviation);
         parks_mcclellan_output.deviations.push(deviation);
         match j_type {
             JType::MultipleBand => {
                 let deviation_db: f32 = 20.0 * (deviation + bands[k].desired_value).log10();
-                println!("    deviation in dB: {}", deviation_db);
                 parks_mcclellan_output.deviation_dbs.push(deviation_db);
             },
             _ => {}
         }
     }
-
-    println!("Extremal frequencies (maxima of the error curve)");
-    for j in 1..(last_coefficient_index +1) {
-        let grid_index = extremal_frequencies.get_grid_index(j-1);
+    for j in 0..(num_coefficients + 1) {
+        let grid_index = extremal_frequencies.get_grid_index(j);
         let temp = grid.get_grid(grid_index as usize - 1);
-        println!("{}", temp);
         parks_mcclellan_output.extremal_frequencies.push(temp);
     }
+
+    print_filter_outputs(&parks_mcclellan_output);
 
     parks_mcclellan_output
 }
