@@ -45,6 +45,51 @@ pub struct ParksMcclellanOutput {
     pub extremal_frequencies: Vec<f32>,
 }
 
+fn calculate_impulse_response(alpha: &[f32; 66], num_coefficients: usize, odd: bool, neg: bool) -> Vec<f32> {
+    let mut impulse_response = vec![0.0; 66];
+    match (odd, neg) {
+        (false, false) => {
+            // Impulse response has an EVEN number of samples,
+            // REFLECTED horizontally across the midpoint of the middle two points.
+            impulse_response[0] = 0.25 * alpha[num_coefficients - 1];
+            for j in 2..num_coefficients {
+                impulse_response[j - 1] = 0.25 * (alpha[num_coefficients - j] + alpha[num_coefficients + 1 - j]);
+            }
+            impulse_response[num_coefficients - 1] = 0.5 * alpha[0] + 0.25 * alpha[1];
+        },
+        (false, true) => {
+            // Impulse response has an EVEN number of samples,
+            // ROTATED 180 degrees around the midpoint of the middle two points.
+            impulse_response[0] = 0.25 * alpha[num_coefficients - 1];
+            for j in 2..num_coefficients {
+                impulse_response[j - 1] = 0.25 * (alpha[num_coefficients - j] - alpha[num_coefficients + 1 - j]);
+            }
+            impulse_response[num_coefficients - 1] = 0.5 * alpha[0] - 0.25 * alpha[1];
+        },
+        (true, false) => {
+            // Impulse response has an ODD number of samples,
+            // REFLECTED horizontally across the middle point.
+            for j in 1..num_coefficients {
+                impulse_response[j - 1] = 0.5 * alpha[num_coefficients - j];
+            }
+            impulse_response[num_coefficients - 1] = alpha[0];
+        },
+        (true, true) => {
+            // Impulse response has an ODD number of samples,
+            // ROTATED 180 degrees around the middle point.
+            impulse_response[0] = 0.25 * alpha[num_coefficients - 1];
+            if num_coefficients > 1 {
+                impulse_response[1] = 0.25 * alpha[num_coefficients - 2];
+            }
+            for j in 3..num_coefficients {
+                impulse_response[j - 1] = 0.25 * (alpha[num_coefficients - j] - alpha[num_coefficients + 2 - j]);
+            }
+            impulse_response[num_coefficients -1] = 0.5 * alpha[0] - 0.25 * alpha[2];
+        }
+    }
+    impulse_response
+}
+
 // Note: l_grid is defaulted to 16 in the Parks-McClellan paper.
 fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> ParksMcclellanOutput {
     // The filter length must be [3, NF_MAX].
@@ -79,58 +124,15 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     grid.reformat_grid_for_remez(neg, odd);
     let grid = grid;
 
-    let nm1 = num_coefficients - 1;
     let last_coefficient_index = num_coefficients + 1;
 
     // Call the remez exchange algorithm to do the approximation problem.
     let (alpha, deviation, extremal_frequencies) = remez(num_coefficients, &grid);
 
     // Calculate the impulse response.
-    let mut h = [0.0f32; 66];
-    if !neg {
-        if !odd {
-            h[0] = 0.25 * alpha[num_coefficients -1];
-            for j in 2..(nm1+1) {
-                let nzmj = last_coefficient_index -j;
-                let nf2j = num_coefficients +2-j;
-                h[j-1] = 0.25 * (alpha[nzmj-1] + alpha[nf2j-1]);
-            }
-            h[num_coefficients -1] = 0.5 * alpha[0] + 0.25 * alpha[1];
-        } else {
-            for j in 1..(nm1+1) {
-                let nzmj = last_coefficient_index -j;
-                h[j-1] = 0.5 * alpha[nzmj-1];
-            }
-            h[num_coefficients -1] = alpha[0];
-        }
-    } else {
-        if !odd {
-            h[0] = 0.25 * alpha[num_coefficients -1];
-            for j in 2..(nm1+1) {
-                let nzmj = last_coefficient_index -j;
-                let nf2j = num_coefficients +2-j;
-                h[j-1] = 0.25 * (alpha[nzmj-1] - alpha[nf2j-1]);
-            }
-            h[num_coefficients -1] = 0.5 * alpha[0] - 0.25 * alpha[1];
-        } else {
-            h[0] = 0.25 * alpha[num_coefficients -1];
-            if nm1 > 0 {
-                // Fortran treats indexing to the "zeroth" element
-                // as a no-op, I guess? (remember it's 1-indexed)
-                h[1] = 0.25 * alpha[nm1-1];
-            }
-            for j in 3..(nm1+1) {
-                let nzmj = last_coefficient_index -j;
-                let nf3j = num_coefficients +3-j;
-                h[j-1] = 0.25 * (alpha[nzmj-1] - alpha[nf3j-1]);
-            }
-            h[num_coefficients -1] = 0.5 * alpha[0] - 0.25 * alpha[2];
-            h[last_coefficient_index -1] = 0.0;
-        }
-    }
+    let impulse_response = calculate_impulse_response(&alpha, num_coefficients, odd, neg);
 
     // Program output section
-
     let mut parks_mcclellan_output = ParksMcclellanOutput {
         filter_length: 0,
         impulse_response: vec![],
@@ -152,9 +154,9 @@ fn design(n_filt: usize, j_type: JType, bands: &Vec<Band>, l_grid: usize) -> Par
     parks_mcclellan_output.filter_length = n_filt;
     println!();
     println!("***** IMPULSE RESPONSE *****");
-    for j in 1..(num_coefficients +1) {
-        println!("{:e}", h[j-1]);
-        parks_mcclellan_output.impulse_response.push(h[j-1]);
+    for j in 1..(num_coefficients+1) {
+        println!("{:e}", impulse_response[j-1]);
+        parks_mcclellan_output.impulse_response.push(impulse_response[j-1]);
     }
     println!();
     if neg && odd {
@@ -239,11 +241,6 @@ fn remez(
     (alpha, deviation, extremal_frequencies)
 }
 
-enum RecalculateExtremalFrequenciesResult {
-    StopIterating,
-    ContinueIterating,
-}
-
 fn remez_iterate(
     num_coefficients: usize,
     grid: &DenseGrid,
@@ -252,23 +249,17 @@ fn remez_iterate(
     y: &mut [f64; 66],
     ad: &mut [f64; 66],
 ) -> f64 {
-    let mut deviation = 0.0;
-
-    let mut niter = 0;
-    let itrmax = 25; // Max number of iterations
-
     let last_coefficient_index = num_coefficients + 1;
-    let coefficient_off_end_index = num_coefficients + 2;
 
+    let mut deviation = 0.0;
     let mut devl = -1.0f32;
 
-    'state_100: loop {
+    // TODO: make num_iterations max a parameter
+    for num_iterations in 0..25 {
+        println!("num_iterations: {}", num_iterations);
+
         extremal_frequencies.set_grid_index(last_coefficient_index, grid.n_grid() as i64 + 1);
-        niter += 1;
-        println!("niter: {}", niter);
-        if niter > itrmax {
-            break 'state_100;
-        }
+
         for j in 1..(last_coefficient_index +1) {
             let jxt = extremal_frequencies.get_grid_index(j-1);
             let mut dtemp: f64 = grid.get_grid((jxt-1) as usize) as f64;
@@ -307,10 +298,10 @@ fn remez_iterate(
 
         if deviation <= devl as f64 {
             println!("***** FAILURE TO CONVERGE *****");
-            println!("Number of iterations: {}", niter);
+            println!("Number of iterations: {}", num_iterations);
             println!("If the number of iterations is greater than 3,");
             println!("the design might be correct, but should be verified by FFT.");
-            break 'state_100;
+            break;
         }
 
         devl = deviation as f32;
@@ -327,15 +318,16 @@ fn remez_iterate(
             extremal_frequencies
         );
 
-        match recalculation_result {
-            RecalculateExtremalFrequenciesResult::ContinueIterating => continue,
-            RecalculateExtremalFrequenciesResult::StopIterating => break,
-        };
+        if recalculation_result.is_err() {
+            break;
+        }
     }
 
     deviation
 }
 
+// If Ok(()): keep iterating.
+// If Err(()): stop iterating.
 fn recalculate_extremal_frequencies(
     num_coefficients: usize,
     grid: &DenseGrid,
@@ -345,7 +337,7 @@ fn recalculate_extremal_frequencies(
     ad: &[f64; 66],
     deviation: f64,
     extremal_frequencies: &mut ExtremalFrequencies,
-) -> RecalculateExtremalFrequenciesResult {
+) -> Result<(), ()> {
     let last_coefficient_index = num_coefficients + 1;
     let coefficient_off_end_index = num_coefficients + 2;
 
@@ -369,7 +361,7 @@ fn recalculate_extremal_frequencies(
             if non_loop_j > coefficient_off_end_index {
                 if luck > 9 {
                     extremal_frequencies.shift_grid_indexes_left();
-                    return RecalculateExtremalFrequenciesResult::ContinueIterating;
+                    return Ok(()); // Keep iterating
                 }
                 if comp.unwrap() > y1.unwrap() {
                     y1 = comp;
@@ -384,12 +376,12 @@ fn recalculate_extremal_frequencies(
                     if local_ell <= klow {
                         if luck == 6 {
                             if jchnge > 0 {
-                                return RecalculateExtremalFrequenciesResult::ContinueIterating;
+                                return Ok(()); // Keep iterating
                             }
-                            return RecalculateExtremalFrequenciesResult::StopIterating;
+                            return Err(()); // Stop iterating
                         }
                         extremal_frequencies.shift_grid_indexes_right(k1);
-                        return RecalculateExtremalFrequenciesResult::ContinueIterating;
+                        return Ok(()); // Keep iterating
                     }
                     let err = calculate_err(grid, None, &x, &y, &ad, local_ell, last_coefficient_index);
                     let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
@@ -444,9 +436,9 @@ fn recalculate_extremal_frequencies(
                     ell = ell-1;
                     if ell <= klow {
                         if jchnge > 0 {
-                            return RecalculateExtremalFrequenciesResult::ContinueIterating;
+                            return Ok(()); // Keep iterating
                         }
-                        return RecalculateExtremalFrequenciesResult::StopIterating;
+                        return Err(()); // Stop iterating
                     }
                     let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
 
@@ -454,9 +446,9 @@ fn recalculate_extremal_frequencies(
                         ell = ell-1;
                         if ell <= klow {
                             if jchnge > 0 {
-                                return RecalculateExtremalFrequenciesResult::ContinueIterating;
+                                return Ok(()); // Keep iterating
                             }
-                            return RecalculateExtremalFrequenciesResult::StopIterating;
+                            return Err(()); // Stop iterating
                         }
                         err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
                     }
