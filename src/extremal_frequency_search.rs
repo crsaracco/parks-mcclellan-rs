@@ -1,8 +1,8 @@
-use super::ExtremalFrequencies;
 use super::DenseGrid;
+use super::ExtremalFrequencies;
 
 pub fn find_nth_extremal_frequency(
-    last_coefficient_index: usize,
+    num_coefficients: usize,
     grid: &DenseGrid,
     x: &[f64; 66],
     y: &[f64; 66],
@@ -17,6 +17,8 @@ pub fn find_nth_extremal_frequency(
     jchnge: &mut i32,
     extremal_frequencies: &mut ExtremalFrequencies,
 ) {
+    let last_coefficient_index = num_coefficients + 1;
+
     let kup = extremal_frequencies.get_grid_index(*non_loop_j);
     let mut ell = extremal_frequencies.get_grid_index(*non_loop_j-1) + 1;
     *nut = -*nut;
