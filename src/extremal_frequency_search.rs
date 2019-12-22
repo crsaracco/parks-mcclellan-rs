@@ -11,8 +11,8 @@ pub fn find_nth_extremal_frequency(
 
     non_loop_j: &mut usize,
     nut: &mut i32,
-    comp: &mut Option<f64>,
-    y1: &mut Option<f64>,
+    comp: &mut f64,
+    y1: &mut f64,
     klow: &mut i64,
     jchnge: &mut i32,
     extremal_frequencies: &mut ExtremalFrequencies,
@@ -25,7 +25,7 @@ pub fn find_nth_extremal_frequency(
     if *non_loop_j == 2 {
         *y1 = *comp;
     }
-    *comp = Some(deviation);
+    *comp = deviation;
     if ell >= kup {
         ell = ell - 1;
         'loop_03: loop {
@@ -47,11 +47,11 @@ pub fn find_nth_extremal_frequency(
                         return;
                     }
                     let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                    let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+                    let dtemp = (*nut as f64) * (err as f64) - *comp;
                     if dtemp <= 0.0 {
                         continue 'loop_05;
                     }
-                    *comp = Some((*nut as f64) * (err as f64));
+                    *comp = (*nut as f64) * (err as f64);
 
                     loop {
                         ell = ell + 1;
@@ -59,11 +59,11 @@ pub fn find_nth_extremal_frequency(
                             break;
                         }
                         err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                        let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+                        let dtemp = (*nut as f64) * (err as f64) - *comp;
                         if dtemp <= 0.0 {
                             break;
                         }
-                        *comp = Some((*nut as f64) * (err as f64));
+                        *comp = (*nut as f64) * (err as f64);
                     }
 
                     extremal_frequencies.set_grid_index(*non_loop_j-1, ell-1);
@@ -74,9 +74,9 @@ pub fn find_nth_extremal_frequency(
                 }
             }
             let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-            let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+            let dtemp = (*nut as f64) * (err as f64) - *comp;
             if dtemp > 0.0 {
-                *comp = Some((*nut as f64) * (err as f64));
+                *comp = (*nut as f64) * (err as f64);
 
                 loop {
                     ell -= 1;
@@ -84,11 +84,11 @@ pub fn find_nth_extremal_frequency(
                         break;
                     }
                     err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                    let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+                    let dtemp = (*nut as f64) * (err as f64) - *comp;
                     if dtemp <= 0.0 {
                         break;
                     }
-                    *comp = Some((*nut as f64) * (err as f64));
+                    *comp = (*nut as f64) * (err as f64);
                 }
 
                 *klow = extremal_frequencies.get_grid_index(*non_loop_j-1);
@@ -106,7 +106,7 @@ pub fn find_nth_extremal_frequency(
         }
     }
     let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-    let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+    let dtemp = (*nut as f64) * (err as f64) - *comp;
     if dtemp <= 0.0 {
         ell = ell - 1;
         'loop_13: loop {
@@ -128,11 +128,11 @@ pub fn find_nth_extremal_frequency(
                         return;
                     }
                     err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                    let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+                    let dtemp = (*nut as f64) * (err as f64) - *comp;
                     if dtemp <= 0.0 {
                         continue 'loop_15;
                     }
-                    *comp = Some((*nut as f64) * (err as f64));
+                    *comp = (*nut as f64) * (err as f64);
 
                     loop {
                         ell = ell + 1;
@@ -140,11 +140,11 @@ pub fn find_nth_extremal_frequency(
                             break;
                         }
                         err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                        let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+                        let dtemp = (*nut as f64) * (err as f64) - *comp;
                         if dtemp <= 0.0 {
                             break;
                         }
-                        *comp = Some((*nut as f64) * (err as f64));
+                        *comp = (*nut as f64) * (err as f64);
                     }
 
                     extremal_frequencies.set_grid_index(*non_loop_j-1, ell-1);
@@ -155,9 +155,9 @@ pub fn find_nth_extremal_frequency(
                 }
             }
             err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-            let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+            let dtemp = (*nut as f64) * (err as f64) - *comp;
             if dtemp > 0.0 {
-                *comp = Some((*nut as f64) * (err as f64));
+                *comp = (*nut as f64) * (err as f64);
 
                 loop {
                     ell -= 1;
@@ -165,11 +165,11 @@ pub fn find_nth_extremal_frequency(
                         break;
                     }
                     err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                    let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+                    let dtemp = (*nut as f64) * (err as f64) - *comp;
                     if dtemp <= 0.0 {
                         break;
                     }
-                    *comp = Some((*nut as f64) * (err as f64));
+                    *comp = (*nut as f64) * (err as f64);
                 }
 
                 *klow = extremal_frequencies.get_grid_index(*non_loop_j-1);
@@ -186,7 +186,7 @@ pub fn find_nth_extremal_frequency(
             return;
         }
     }
-    *comp = Some((*nut as f64) * (err as f64));
+    *comp = (*nut as f64) * (err as f64);
 
     loop {
         ell = ell + 1;
@@ -194,11 +194,11 @@ pub fn find_nth_extremal_frequency(
             break;
         }
         err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-        let dtemp = (*nut as f64) * (err as f64) - comp.unwrap();
+        let dtemp = (*nut as f64) * (err as f64) - *comp;
         if dtemp <= 0.0 {
             break;
         }
-        *comp = Some((*nut as f64) * (err as f64));
+        *comp = (*nut as f64) * (err as f64);
     }
 
     extremal_frequencies.set_grid_index(*non_loop_j-1, ell-1);
