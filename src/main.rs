@@ -327,11 +327,10 @@ fn recalculate_extremal_frequencies(
     use endpoints_search::EndpointSearchResult;
 
     let last_coefficient_index = num_coefficients + 1;
-    let coefficient_off_end_index = num_coefficients + 2;
 
     let mut non_loop_j = 1;
-    let mut luck = 0;
-    let mut ynz = 0.0;
+
+
     let mut comp = 0.0;
     let mut y1 = 0.0;
     let mut jchnge = 0;
@@ -341,54 +340,48 @@ fn recalculate_extremal_frequencies(
     let mut nut = -nu;
     let mut nut1 = 0;
 
-    // Find the `non_loop_j`th extremal frequency
-    while non_loop_j < coefficient_off_end_index {
-        extremal_frequency_search::find_nth_extremal_frequency(
-            num_coefficients,
-            grid,
-            x,
-            y,
-            ad,
-            deviation,
-            &mut non_loop_j,
-            &mut nut,
-            &mut comp,
-            &mut y1,
-            &mut klow,
-            &mut jchnge,
-            extremal_frequencies,
-        );
-    }
+    // Find the extremal frequencies
+    extremal_frequency_search::find_nth_extremal_frequency(
+        num_coefficients,
+        grid,
+        x,
+        y,
+        ad,
+        deviation,
+        &mut non_loop_j,
+        &mut nut,
+        &mut comp,
+        &mut y1,
+        &mut klow,
+        &mut jchnge,
+        extremal_frequencies,
+    );
 
     // Search for the endpoints
-    loop {
-        let endpoint_search_result = endpoints_search::endpoints_search(
-            num_coefficients,
-            grid,
-            x,
-            y,
-            ad,
-            nu,
-            &mut non_loop_j,
-            &mut luck,
-            &mut k1,
-            &mut ynz,
-            &mut comp,
-            &mut y1,
-            &mut klow,
-            &mut knz,
-            &mut nut,
-            &mut nut1,
-            &mut jchnge,
-            extremal_frequencies,
-        );
+    let endpoint_search_result = endpoints_search::endpoints_search(
+        num_coefficients,
+        grid,
+        x,
+        y,
+        ad,
+        nu,
+        &mut non_loop_j,
+        &mut k1,
+        &mut comp,
+        &mut y1,
+        &mut klow,
+        &mut knz,
+        &mut nut,
+        &mut nut1,
+        &mut jchnge,
+        extremal_frequencies,
+    );
 
-        match endpoint_search_result {
-            EndpointSearchResult::KeepIteratingRemez => return Ok(()),
-            EndpointSearchResult::StopIteratingRemez => return Err(()),
-            EndpointSearchResult::ReLoopExtremalFrequencies => continue,
-        };
-    }
+    match endpoint_search_result {
+        EndpointSearchResult::KeepIteratingRemez => return Ok(()),
+        EndpointSearchResult::StopIteratingRemez => return Err(()),
+    };
+
 }
 
 fn calculate_alpha(
