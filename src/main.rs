@@ -6,6 +6,9 @@ use dense_grid::DenseGrid;
 pub mod extremal_frequencies;
 use extremal_frequencies::ExtremalFrequencies;
 
+pub mod lagrange_interpolation;
+pub mod extremal_frequency_search;
+
 const PI: f64 = std::f64::consts::PI;
 const PI2: f64 = PI * 2.0;
 
@@ -229,7 +232,7 @@ fn remez(
     num_coefficients: usize,
     grid: &DenseGrid,
 ) -> ([f32; 66], f64, ExtremalFrequencies) {
-    // TODO: maybe move these into "state_100" and return them?
+    // TODO: maybe move these into "remez_iterate" and return them?
     let mut x = [0.0f64; 66];
     let mut y = [0.0f64; 66];
     let mut ad = [0.0f64; 66];
@@ -266,42 +269,17 @@ fn remez_iterate(
 
         extremal_frequencies.set_grid_index(last_coefficient_index, grid.n_grid() as i64 + 1);
 
-        for j in 1..(last_coefficient_index +1) {
-            let jxt = extremal_frequencies.get_grid_index(j-1);
-            let mut dtemp: f64 = grid.get_grid((jxt-1) as usize) as f64;
-            dtemp = (dtemp * PI2).cos();
-            x[j-1] = dtemp;
-        }
-        let jet = (num_coefficients -1) / 15 + 1;
-        for j in 1..(last_coefficient_index +1) {
-            ad[j-1] = d_func(&x, j, last_coefficient_index, jet);
-        }
-
-        let mut dnum = 0.0;
-        let mut dden = 0.0;
-        let mut k = 1;
-        for j in 1..(last_coefficient_index+1) {
-            let local_ell = extremal_frequencies.get_grid_index(j-1);
-            let dtemp = ad[j-1] * grid.get_des((local_ell-1) as usize) as f64;
-            dnum += dtemp;
-            let dtemp = (k as f64) * ad[j-1] / grid.get_wt((local_ell-1) as usize) as f64;
-            dden += dtemp;
-            k = -k;
-        }
-        deviation = dnum / dden;
+        // Lagrange interpolation
+        *x = lagrange_interpolation::lagrange_x_coordinates(num_coefficients, grid, extremal_frequencies);
+        *ad = lagrange_interpolation::lagrange_interpolation_coefficients(num_coefficients, x);
+        deviation = lagrange_interpolation::deviation(num_coefficients, grid, ad, extremal_frequencies);
         println!("DEVIATION: {}", deviation);
-
         let nu = if deviation > 0.0 { -1 } else { 1 };
-        deviation = -(nu as f64) * deviation;
-        k = nu;
+        deviation = deviation.abs();
+        *y = lagrange_interpolation::lagrange_y_coordinates(num_coefficients, grid, nu, deviation, extremal_frequencies);
 
-        for j in 1..(last_coefficient_index +1) {
-            let local_ell = extremal_frequencies.get_grid_index(j-1);
-            let dtemp = (k as f64) * deviation / grid.get_wt((local_ell-1) as usize) as f64;
-            y[j-1] = grid.get_des((local_ell-1) as usize) as f64 + dtemp;
-            k = -k;
-        }
-
+        // If deviation this time is less than (or equal to) the deviation last time (devl),
+        // then we've failed to converge. Break out of iteration, and calculate filter coefficients.
         if deviation <= devl as f64 {
             println!("***** FAILURE TO CONVERGE *****");
             println!("Number of iterations: {}", num_iterations);
@@ -310,6 +288,7 @@ fn remez_iterate(
             break;
         }
 
+        // Record deviation this time, to use for the above comparison next time.
         devl = deviation as f32;
 
         // Search for the extremal frequencies of the best approximation
@@ -363,6 +342,7 @@ fn recalculate_extremal_frequencies(
         if non_loop_j == coefficient_off_end_index {
             ynz = comp;
         }
+        // ENDPOINT SEARCH?
         if non_loop_j >= coefficient_off_end_index {
             if non_loop_j > coefficient_off_end_index {
                 if luck > 9 {
@@ -512,193 +492,22 @@ fn recalculate_extremal_frequencies(
                 continue 'state_200;
             }
         }
-        let kup = extremal_frequencies.get_grid_index(non_loop_j);
-        let mut ell = extremal_frequencies.get_grid_index(non_loop_j-1) + 1;
-        nut = -nut;
-        if non_loop_j == 2 {
-            y1 = comp;
-        }
-        comp = Some(deviation);
-        if ell >= kup {
-            ell = ell - 1;
-            'loop_03: loop {
-                ell = ell - 1;
-                if ell <= klow {
-                    ell = extremal_frequencies.get_grid_index(non_loop_j-1) + 1;
-                    if jchnge > 0 {
-                        extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
-                        non_loop_j = non_loop_j + 1;
-                        klow = ell - 1;
-                        jchnge = jchnge + 1;
-                        continue 'state_200;
-                    }
-                    'loop_05: loop {
-                        ell += 1;
-                        if ell >= kup {
-                            klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                            non_loop_j += 1;
-                            continue 'state_200;
-                        }
-                        let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                        if dtemp <= 0.0 {
-                            continue 'loop_05;
-                        }
-                        comp = Some((nut as f64) * (err as f64));
-
-                        loop {
-                            ell = ell + 1;
-                            if ell >= kup {
-                                break;
-                            }
-                            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                            if dtemp <= 0.0 {
-                                break;
-                            }
-                            comp = Some((nut as f64) * (err as f64));
-                        }
-
-                        extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
-                        non_loop_j = non_loop_j + 1;
-                        klow = ell - 1;
-                        jchnge = jchnge + 1;
-                        continue 'state_200;
-                    }
-                }
-                let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp > 0.0 {
-                    comp = Some((nut as f64) * (err as f64));
-
-                    loop {
-                        ell -= 1;
-                        if ell <= klow {
-                            break;
-                        }
-                        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                        if dtemp <= 0.0 {
-                            break;
-                        }
-                        comp = Some((nut as f64) * (err as f64));
-                    }
-
-                    klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                    extremal_frequencies.set_grid_index(non_loop_j-1, ell+1);
-                    non_loop_j += 1;
-                    jchnge += 1;
-                    continue 'state_200;
-                }
-                if jchnge <= 0 {
-                    continue 'loop_03;
-                }
-                klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                non_loop_j += 1;
-                continue 'state_200;
-            }
-        }
-        let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-        if dtemp <= 0.0 {
-            ell = ell - 1;
-            'loop_13: loop {
-                ell = ell - 1;
-                if ell <= klow {
-                    ell = extremal_frequencies.get_grid_index(non_loop_j-1) + 1;
-                    if jchnge > 0 {
-                        extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
-                        non_loop_j = non_loop_j + 1;
-                        klow = ell - 1;
-                        jchnge = jchnge + 1;
-                        continue 'state_200;
-                    }
-                    'loop_15: loop {
-                        ell += 1;
-                        if ell >= kup {
-                            klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                            non_loop_j += 1;
-                            continue 'state_200;
-                        }
-                        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                        if dtemp <= 0.0 {
-                            continue 'loop_15;
-                        }
-                        comp = Some((nut as f64) * (err as f64));
-
-                        loop {
-                            ell = ell + 1;
-                            if ell >= kup {
-                                break;
-                            }
-                            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                            if dtemp <= 0.0 {
-                                break;
-                            }
-                            comp = Some((nut as f64) * (err as f64));
-                        }
-
-                        extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
-                        non_loop_j = non_loop_j + 1;
-                        klow = ell - 1;
-                        jchnge = jchnge + 1;
-                        continue 'state_200;
-                    }
-                }
-                err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                if dtemp > 0.0 {
-                    comp = Some((nut as f64) * (err as f64));
-
-                    loop {
-                        ell -= 1;
-                        if ell <= klow {
-                            break;
-                        }
-                        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                        let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-                        if dtemp <= 0.0 {
-                            break;
-                        }
-                        comp = Some((nut as f64) * (err as f64));
-                    }
-
-                    klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                    extremal_frequencies.set_grid_index(non_loop_j-1, ell+1);
-                    non_loop_j += 1;
-                    jchnge += 1;
-                    continue 'state_200;
-                }
-                if jchnge <= 0 {
-                    continue 'loop_13;
-                }
-                klow = extremal_frequencies.get_grid_index(non_loop_j-1);
-                non_loop_j += 1;
-                continue 'state_200;
-            }
-        }
-        comp = Some((nut as f64) * (err as f64));
-
-        loop {
-            ell = ell + 1;
-            if ell >= kup {
-                break;
-            }
-            err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-            let dtemp = (nut as f64) * (err as f64) - comp.unwrap();
-            if dtemp <= 0.0 {
-                break;
-            }
-            comp = Some((nut as f64) * (err as f64));
-        }
-
-        extremal_frequencies.set_grid_index(non_loop_j-1, ell-1);
-        non_loop_j = non_loop_j + 1;
-        klow = ell - 1;
-        jchnge = jchnge + 1;
-        continue 'state_200;
+        // FIND THE `non_loop_j`th EXTREMAL FREQUENCY
+        extremal_frequency_search::find_nth_extremal_frequency(
+            last_coefficient_index,
+            grid,
+            x,
+            y,
+            ad,
+            deviation,
+            &mut non_loop_j,
+            &mut nut,
+            &mut comp,
+            &mut y1,
+            &mut klow,
+            &mut jchnge,
+            extremal_frequencies,
+        );
     }
 }
 
@@ -852,27 +661,6 @@ fn calculate_alpha(
     alpha[num_coefficients +1] = 0.0;
 
     alpha
-}
-
-// Function to calculate the lagrange interpolation coefficients
-// for use in the function `grid.gee`
-fn d_func(x: &[f64; 66], k: usize, n: usize, m: usize) -> f64 {
-    let mut d = 1.0;
-    let q = x[k-1];
-
-    let mut l = 1;
-    while l <= m {
-        let mut j = l;
-        while j <= n {
-            if j != k {
-                d = 2.0 * d * (q - x[j-1]);
-            }
-            j += m;
-        }
-        l += 1;
-    }
-    d = 1.0 / d;
-    d
 }
 
 fn calculate_err(
