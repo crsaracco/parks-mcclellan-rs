@@ -328,7 +328,7 @@ fn recalculate_extremal_frequencies(
 
     let mut comp = 0.0;
     let mut y1 = 0.0;
-    let mut jchnge = 0;
+    let mut extremal_frequencies_changed = false;
     let mut klow = 0;
     let mut nut = -nu;
 
@@ -348,7 +348,7 @@ fn recalculate_extremal_frequencies(
         &mut comp,
         &mut y1,
         &mut klow,
-        &mut jchnge,
+        &mut extremal_frequencies_changed,
         extremal_frequencies,
     );
 
@@ -366,7 +366,7 @@ fn recalculate_extremal_frequencies(
         &mut y1,
         &mut klow,
         &mut nut,
-        &mut jchnge,
+        &mut extremal_frequencies_changed,
         extremal_frequencies,
     );
 
