@@ -326,18 +326,18 @@ fn recalculate_extremal_frequencies(
 ) -> Result<(), ()> {
     use endpoints_search::EndpointSearchResult;
 
+    let mut nut = -nu;
     let mut comp = 0.0;
     let mut y1 = 0.0;
-    let mut extremal_frequencies_changed = false;
-    let mut klow = 0;
-    let mut nut = -nu;
+
+
 
     // Capture k1 and knz before the extremal frequencies are changed by `find_nth_extremal_frequency`
     let k1 = extremal_frequencies.get_grid_index(0);
     let knz = extremal_frequencies.get_grid_index(num_coefficients);
 
     // Find the extremal frequencies
-    extremal_frequency_search::find_nth_extremal_frequency(
+    let extremal_frequencies_changed = extremal_frequency_search::find_extremal_frequencies(
         num_coefficients,
         grid,
         x,
@@ -347,8 +347,6 @@ fn recalculate_extremal_frequencies(
         &mut nut,
         &mut comp,
         &mut y1,
-        &mut klow,
-        &mut extremal_frequencies_changed,
         extremal_frequencies,
     );
 
@@ -364,9 +362,8 @@ fn recalculate_extremal_frequencies(
         knz,
         &mut comp,
         &mut y1,
-        &mut klow,
         &mut nut,
-        &mut extremal_frequencies_changed,
+        extremal_frequencies_changed,
         extremal_frequencies,
     );
 
