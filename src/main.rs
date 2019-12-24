@@ -328,9 +328,6 @@ fn recalculate_extremal_frequencies(
 
     let mut nut = -nu;
     let mut comp = 0.0;
-    let mut y1 = 0.0;
-
-
 
     // Capture k1 and knz before the extremal frequencies are changed by `find_nth_extremal_frequency`
     let k1 = extremal_frequencies.get_grid_index(0);
@@ -346,7 +343,6 @@ fn recalculate_extremal_frequencies(
         deviation,
         &mut nut,
         &mut comp,
-        &mut y1,
         extremal_frequencies,
     );
 
@@ -360,8 +356,8 @@ fn recalculate_extremal_frequencies(
         nu,
         k1,
         knz,
+        deviation,
         &mut comp,
-        &mut y1,
         &mut nut,
         extremal_frequencies_changed,
         extremal_frequencies,

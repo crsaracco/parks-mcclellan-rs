@@ -15,9 +15,9 @@ pub fn endpoints_search(
     nu: i32,
     k1: i64,
     knz: i64,
+    deviation: f64,
 
     comp: &mut f64,
-    y1: &mut f64,
     nut: &mut i32,
     extremal_frequencies_changed: bool,
     extremal_frequencies: &mut ExtremalFrequencies,
@@ -28,6 +28,7 @@ pub fn endpoints_search(
     let mut nut1 = 0;
     let mut k1 = k1;
     let mut knz = knz;
+    let mut y1 = deviation;
 
     'search_endpoints: loop {
         let zeroth_grid_index = extremal_frequencies.get_grid_index(0);
@@ -49,7 +50,7 @@ pub fn endpoints_search(
                 ell = grid.n_grid() as i64 + 1;
                 let klow = knz;
                 *nut = -nut1;
-                *comp = *y1 * 1.00001;
+                *comp = y1 * 1.00001;
 
                 ell = ell - 1;
                 if ell <= klow {
@@ -116,14 +117,14 @@ pub fn endpoints_search(
         }
     }
 
-    if *comp > *y1 {
-        *y1 = *comp;
+    if *comp > y1 {
+        y1 = *comp;
     }
     k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
     let mut local_ell = grid.n_grid() as i64 + 1;
     let klow = knz;
     *nut = -nut1;
-    *comp = *y1 * 1.00001;
+    *comp = y1 * 1.00001;
     'loop_11: loop {
         local_ell -= 1;
         if local_ell <= klow {
