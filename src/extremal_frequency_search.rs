@@ -1,7 +1,47 @@
 use super::DenseGrid;
 use super::ExtremalFrequencies;
 
-fn ell_less_than_kup(
+pub fn find_extremal_frequencies(
+    num_coefficients: usize,
+    grid: &DenseGrid,
+    x: &[f64; 66],
+    y: &[f64; 66],
+    ad: &[f64; 66],
+    deviation: f64,
+
+    nut: &mut i32,
+    comp: &mut f64,
+    extremal_frequencies: &mut ExtremalFrequencies,
+) -> bool /* extremal_frequencies_changed */ {
+    let coefficient_off_end_index = num_coefficients + 2;
+    let mut klow = 0;
+
+    let mut extremal_frequencies_changed = false;
+
+    for j in 1..coefficient_off_end_index {
+        *nut = -*nut;
+        *comp = deviation;
+
+        search_for_frequency(
+            num_coefficients,
+            grid,
+            x,
+            y,
+            ad,
+            deviation,
+            j,
+            *nut,
+            comp,
+            &mut klow,
+            &mut extremal_frequencies_changed,
+            extremal_frequencies
+        );
+    }
+
+    extremal_frequencies_changed
+}
+
+fn search_for_frequency(
     num_coefficients: usize,
     grid: &DenseGrid,
     x: &[f64; 66],
@@ -17,24 +57,25 @@ fn ell_less_than_kup(
     extremal_frequencies: &mut ExtremalFrequencies,
 ) {
     let last_coefficient_index = num_coefficients + 1;
-
     let kup = extremal_frequencies.get_grid_index(j);
 
     // Start the search at k+1. If this frequency is "suitable", keep searching upwards (towards
     // kup) for a local maximum.
     let mut ell = extremal_frequencies.get_grid_index(j - 1) + 1;
-    let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-    if deviation < (nut as f64) * (err as f64) {
-        search_upwards(num_coefficients, grid, x, y, ad, nut, err, ell, kup, j,
-                       klow, comp, extremal_frequencies_changed, extremal_frequencies);
-        return; // ON TO THE NEXT EXTREMA
+    if ell < kup { // Careful not to overflow...
+        let err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+        if deviation < (nut as f64) * (err as f64) {
+            search_upwards(num_coefficients, grid, x, y, ad, nut, err, ell, kup, j,
+                           klow, comp, extremal_frequencies_changed, extremal_frequencies);
+            return; // ON TO THE NEXT EXTREMA
+        }
     }
 
     // If that frequency wasn't "suitable", check k-1. If that is "suitable", keep searching
     // downwards (towards klow) for a local maximum.
     ell = extremal_frequencies.get_grid_index(j - 1) - 1;
     if ell > *klow { // Careful not to underflow...
-        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+        let err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
         if (nut as f64) * (err as f64) - *comp > 0.0 {
             // There is a local max of error curve. Keep searching k-2, k-3, ..., klow
             // until the local max is found.
@@ -55,10 +96,10 @@ fn ell_less_than_kup(
     // We're getting a little desperate to change some frequency this round,
     // so search **ALL** the frequencies!
 
-    // Start with searching downwards (starting at k-2, going towards klow)
+    // Start by searching downwards (starting at k-2, going towards klow)
     ell = extremal_frequencies.get_grid_index(j - 1) - 2;
     while ell > *klow {
-        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+        let err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
         if (nut as f64) * (err as f64) - *comp > 0.0 {
             // There is a local max of error curve. Keep searching k-2, k-3, ..., klow
             // until the local max is found.
@@ -72,7 +113,7 @@ fn ell_less_than_kup(
     // Still didn't find anything. Search upwards (starting at k+2, going towards kup)
     ell = extremal_frequencies.get_grid_index(j - 1) + 2;
     while ell < kup {
-        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
+        let err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
         if (nut as f64) * (err as f64) - *comp > 0.0 {
             // Found a local maximum!
             search_upwards(num_coefficients, grid, x, y, ad, nut, err, ell, kup, j,
@@ -160,7 +201,6 @@ fn search_upwards(
             break; // ON TO THE NEXT EXTREMA
         }
         *comp = (nut as f64) * (err as f64);
-
     }
 
     if !local_max_found {
@@ -193,153 +233,6 @@ fn update_loop_variables_downwards_loop(
     extremal_frequencies.set_grid_index(grid_index, grid_value);
     *klow = new_klow;
     *extremal_frequencies_changed = true;
-}
-
-fn ell_greater_than_or_equal_to_kup(
-    num_coefficients: usize,
-    grid: &DenseGrid,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    j: usize,
-    nut: i32,
-
-    comp: &mut f64,
-    klow: &mut i64,
-    extremal_frequencies_changed: &mut bool,
-    extremal_frequencies: &mut ExtremalFrequencies,
-) {
-    let last_coefficient_index = num_coefficients + 1;
-
-    let kup = extremal_frequencies.get_grid_index(j);
-    let mut ell = extremal_frequencies.get_grid_index(j - 1);
-
-    while ell-1 > *klow {
-        ell -= 1;
-        let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp > 0.0 {
-            *comp = (nut as f64) * (err as f64);
-
-            ell -= 1;
-            while ell > *klow {
-                err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-                if (nut as f64) * (err as f64) - *comp <= 0.0 {
-                    break;
-                }
-                *comp = (nut as f64) * (err as f64);
-                ell -= 1;
-            }
-
-            *klow = extremal_frequencies.get_grid_index(j -1);
-            extremal_frequencies.set_grid_index(j -1, ell+1);
-            *extremal_frequencies_changed = true;
-            return; // ON TO THE NEXT EXTREMA
-        }
-        if *extremal_frequencies_changed {
-            *klow = extremal_frequencies.get_grid_index(j -1);
-            return; // ON TO THE NEXT EXTREMA
-        }
-    }
-
-    ell = extremal_frequencies.get_grid_index(j -1) + 1;
-    if *extremal_frequencies_changed {
-        extremal_frequencies.set_grid_index(j -1, ell-1);
-        *klow = ell - 1;
-        return; // ON TO THE NEXT EXTREMA
-    }
-    'loop_05: loop {
-        ell += 1;
-        if ell >= kup {
-            *klow = extremal_frequencies.get_grid_index(j - 1);
-            return; // ON TO THE NEXT EXTREMA
-        }
-        let err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp <= 0.0 {
-            continue 'loop_05;
-        }
-        break;
-    }
-
-    let mut err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-    *comp = (nut as f64) * (err as f64);
-
-    loop {
-        ell += 1;
-        if ell >= kup {
-            break;
-        }
-        err = calculate_err(grid, None, &x, &y, &ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp <= 0.0 {
-            break;
-        }
-        *comp = (nut as f64) * (err as f64);
-    }
-
-    extremal_frequencies.set_grid_index(j -1, ell-1);
-    *extremal_frequencies_changed = true;
-    *klow = ell - 1;
-    return; // ON TO THE NEXT EXTREMA
-}
-
-pub fn find_extremal_frequencies(
-    num_coefficients: usize,
-    grid: &DenseGrid,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    deviation: f64,
-
-    nut: &mut i32,
-    comp: &mut f64,
-    extremal_frequencies: &mut ExtremalFrequencies,
-) -> bool /* extremal_frequencies_changed */ {
-    let coefficient_off_end_index = num_coefficients + 2;
-    let mut klow = 0;
-
-    let mut extremal_frequencies_changed = false;
-
-    for j in 1..coefficient_off_end_index {
-        *nut = -*nut;
-        *comp = deviation;
-
-        let k_max = extremal_frequencies.get_grid_index(j);
-        let k_min = extremal_frequencies.get_grid_index(j - 1) + 1;
-
-        if k_min < k_max {
-            // Normal case: this extremal frequency has a valid range in the grid to search in.
-            ell_less_than_kup(
-                num_coefficients,
-                grid,
-                x,
-                y,
-                ad,
-                deviation,
-                j,
-                *nut,
-                comp,
-                &mut klow,
-                &mut extremal_frequencies_changed,
-                extremal_frequencies
-            );
-        } else {
-            // Edge case: this extremal frequency **DOES NOT** have a valid range in the grid to search in.
-            ell_greater_than_or_equal_to_kup(
-                num_coefficients,
-                grid,
-                x,
-                y,
-                ad,
-                j,
-                *nut,
-                comp,
-                &mut klow,
-                &mut extremal_frequencies_changed,
-                extremal_frequencies
-            );
-        }
-    }
-
-    extremal_frequencies_changed
 }
 
 fn calculate_err(
