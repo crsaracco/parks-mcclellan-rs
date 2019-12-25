@@ -59,7 +59,7 @@ pub fn endpoints_search(
                     }
                     return EndpointSearchResult::StopIteratingRemez;
                 }
-                let mut err = calculate_err(grid, None, x, y, ad, ell, last_coefficient_index);
+                let mut err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
 
                 'loop_07: while (*nut as f64) * (err as f64) - *comp <= 0.0 {
                     ell = ell - 1;
@@ -69,7 +69,7 @@ pub fn endpoints_search(
                         }
                         return EndpointSearchResult::StopIteratingRemez;
                     }
-                    err = calculate_err(grid, None, x, y, ad, ell, last_coefficient_index);
+                    err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
                 }
 
                 *comp = (*nut as f64) * (err as f64);
@@ -79,7 +79,7 @@ pub fn endpoints_search(
                     if ell <= klow {
                         break;
                     }
-                    err = calculate_err(grid, None, x, y, ad, ell, last_coefficient_index);
+                    err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
                     let dtemp = (*nut as f64) * (err as f64) - *comp;
                     if dtemp <= 0.0 {
                         break;
@@ -91,7 +91,7 @@ pub fn endpoints_search(
                 extremal_frequencies.shift_grid_indexes_left();
                 return EndpointSearchResult::KeepIteratingRemez;
             }
-            let mut err = calculate_err(grid, None, x, y, ad, ell, last_coefficient_index);
+            let mut err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
             let dtemp = (*nut as f64) * (err as f64) - *comp;
             if dtemp <= 0.0 {
                 continue 'loop_06;
@@ -104,7 +104,7 @@ pub fn endpoints_search(
                 if ell >= kup {
                     break;
                 }
-                err = calculate_err(grid, None, x, y, ad, ell, last_coefficient_index);
+                err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
                 let dtemp = (*nut as f64) * (err as f64) - *comp;
                 if dtemp <= 0.0 {
                     break;
@@ -131,7 +131,7 @@ pub fn endpoints_search(
             extremal_frequencies.shift_grid_indexes_right(k1);
             return EndpointSearchResult::KeepIteratingRemez;
         }
-        let err = calculate_err(grid, None, x, y, ad, local_ell, last_coefficient_index);
+        let err = calculate_err(grid, x, y, ad, local_ell, last_coefficient_index);
         let dtemp = (*nut as f64) * (err as f64) - *comp;
         if dtemp <= 0.0 {
             continue 'loop_11;
@@ -140,7 +140,7 @@ pub fn endpoints_search(
     }
 
     loop {
-        let err = calculate_err(grid, None, x, y, ad, local_ell, last_coefficient_index);
+        let err = calculate_err(grid, x, y, ad, local_ell, last_coefficient_index);
         *comp = (*nut as f64) * (err as f64);
         local_ell -= 1;
         if local_ell <= klow {
@@ -157,13 +157,12 @@ pub fn endpoints_search(
 
 fn calculate_err(
     grid: &DenseGrid,
-    zeroth_value_override: Option<f32>,
     x: &[f64; 66],
     y: &[f64; 66],
     ad: &[f64; 66],
     ell: i64,
     last_coefficient_index: usize,
 ) -> f32 {
-    let err = grid.gee(zeroth_value_override, x, y, ad, ell, last_coefficient_index) as f32;
+    let err = grid.gee(None, x, y, ad, ell, last_coefficient_index) as f32;
     (err - grid.get_des((ell - 1) as usize)) * grid.get_wt((ell - 1) as usize)
 }
