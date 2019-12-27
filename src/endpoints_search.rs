@@ -23,109 +23,55 @@ pub fn endpoints_search(
     extremal_frequencies: &mut ExtremalFrequencies,
 ) -> EndpointSearchResult{
     let last_coefficient_index = num_coefficients + 1;
-    let coefficient_off_end_index = num_coefficients + 2;
 
-    let mut nut1 = 0;
-    let mut k1 = k1;
-    let mut knz = knz;
-    let mut y1 = deviation;
     let left_nut = -nu;
     let right_nut = -*nut;
-
-    let mut left_endpoint_wins = false;
-    let mut left_endpoint_index: Option<i64> = None;
-    let mut left_weighted_err = 0.0;
-    let mut right_endpoint_wins = false;
-    let mut right_endpoint_index: Option<i64> = None;
-    let mut right_weighted_err = 0.0;
 
     // Restrict the range of endpoint frequencies to search in.
     // The highest left-endpoint is min(old_k1, new_k1)
     // The lowest right-endpoint is max(old_knz, new_knz)
-    let k1 = k1.min(extremal_frequencies.get_grid_index(0));
+    let kup = k1.min(extremal_frequencies.get_grid_index(0));
     let knz = knz.max(extremal_frequencies.get_grid_index(last_coefficient_index - 1));
 
-    // Some other variables
-    nut1 = *nut;
-    *nut = -nu;
-    let mut ell = 1;
-    let kup = k1;
-    *comp = *comp * 1.00001;
+    let (my_index_left, my_weighted_err_left) = my_search_lower(num_coefficients, grid, x, y, ad, kup, deviation*1.00001, left_nut);
+    let (my_index_right, my_weighted_err_right) = my_search_upper(num_coefficients, grid, x, y, ad, knz, deviation*1.00001, right_nut);
 
-    let (my_index_left, my_weighted_err_left) = my_search_lower(num_coefficients, grid, x, y, ad, kup, deviation, left_nut);
-    let (my_index_right, my_weighted_err_right) = my_search_upper(num_coefficients, grid, x, y, ad, knz, deviation, right_nut);
-
-    while ell < kup {
-        let err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-        if (*nut as f64) * (err as f64) - *comp > 0.0 {
-            *comp = (*nut as f64) * (err as f64);
-
-            let p = search_for_lower_endpoint(num_coefficients, grid, x, y, ad, kup, *comp, *nut, ell);
-            ell = p.0;
-            *comp = p.1;
-
-            left_endpoint_wins = true;
-            left_endpoint_index = Some(ell);
-            left_weighted_err = *comp;
-
-//            assert_eq!(my_index_left, left_endpoint_index.unwrap());
-//            assert_eq!(my_weighted_err_left, left_weighted_err);
-
-            if *comp > y1 {
-                y1 = *comp;
+    match (my_weighted_err_left, my_weighted_err_right) {
+        (Some(left), Some(right)) => {
+            println!("left: {} | right: {}", left, right);
+            if left>right {
+                extremal_frequencies.set_grid_index(last_coefficient_index,  my_index_left.unwrap() - 1);
+                let k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
+                extremal_frequencies.shift_grid_indexes_right(k1);
+                return EndpointSearchResult::KeepIteratingRemez;
+            } else {
+                extremal_frequencies.set_grid_index(last_coefficient_index, my_index_right.unwrap() + 1);
+                extremal_frequencies.shift_grid_indexes_left();
+                return EndpointSearchResult::KeepIteratingRemez;
             }
-
-            break;
-        }
-        ell += 1;
-    }
-
-    //assert_eq!(left_endpoint_index, my_index_left);
-
-
-    ell = grid.n_grid() as i64;
-    *nut = -nut1;
-    *comp = y1 * 1.00001;
-
-    let (my_index_right, my_weighted_err_right) = my_search_upper(num_coefficients, grid, x, y, ad, knz, deviation, right_nut);
-
-    while ell > knz {
-        let err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-        if (*nut as f64) * (err as f64) - *comp > 0.0 {
-            // TODO: should comp be set here???
-
-            ell = search_for_upper_endpoint(num_coefficients, grid, x, y, ad, knz, *comp, *nut, ell);
-
-            right_endpoint_wins = true;
-            left_endpoint_wins = false;
-            right_endpoint_index = Some(ell);
-
-            assert_eq!(my_index_right, right_endpoint_index.unwrap());
-
-            break;
-        }
-        ell -= 1;
-    }
-
-
-    // If one of the endpoints "won", save it to the extremal frequencies.
-    if left_endpoint_wins {
-        extremal_frequencies.set_grid_index(last_coefficient_index,  left_endpoint_index.unwrap() - 1);
-        let k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
-        extremal_frequencies.shift_grid_indexes_right(k1);
-        return EndpointSearchResult::KeepIteratingRemez;
-    } else if right_endpoint_wins {
-        extremal_frequencies.set_grid_index(last_coefficient_index, right_endpoint_index.unwrap() + 1);
-        extremal_frequencies.shift_grid_indexes_left();
-        return EndpointSearchResult::KeepIteratingRemez;
-    }
-
-    // If none of the endpoints "won", figure out if we should keep iterating.
-    if extremal_frequencies_changed {
-        return EndpointSearchResult::KeepIteratingRemez;
-    } else {
-        return EndpointSearchResult::StopIteratingRemez;
-    }
+        },
+        (Some(_), None) => {
+            println!("LEFT IS SOME");
+            extremal_frequencies.set_grid_index(last_coefficient_index,  my_index_left.unwrap() - 1);
+            let k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
+            extremal_frequencies.shift_grid_indexes_right(k1);
+            return EndpointSearchResult::KeepIteratingRemez;
+        },
+        (None, Some(_)) => {
+            println!("RIGHT IS SOME");
+            extremal_frequencies.set_grid_index(last_coefficient_index, my_index_right.unwrap() + 1);
+            extremal_frequencies.shift_grid_indexes_left();
+            return EndpointSearchResult::KeepIteratingRemez;
+        },
+        (None, None) => {
+            println!("ALL IS NONE");
+            if extremal_frequencies_changed {
+                return EndpointSearchResult::KeepIteratingRemez;
+            } else {
+                return EndpointSearchResult::StopIteratingRemez;
+            }
+        },
+    };
 }
 
 fn my_search_lower(
@@ -137,7 +83,7 @@ fn my_search_lower(
     kup: i64,
     deviation: f64,
     nut: i32,
-) -> (/* index */ i64, /* weighted_err */ f64) {
+) -> (/* index */ Option<i64>, /* weighted_err */ Option<f64>) {
     let last_coefficient_index = num_coefficients + 1;
     let mut index = 0;
     let mut comp = deviation;
@@ -158,12 +104,16 @@ fn my_search_lower(
                 comp = weighted_err;
             } else {
                 index = k;
-                return (index, comp);
+                return (Some(index), Some(comp));
             }
         }
     }
 
-    (index+1, comp)
+    if !found {
+        return (None, None);
+    } else {
+        return (Some(index+1), Some(comp));
+    }
 }
 
 fn my_search_upper(
@@ -175,7 +125,7 @@ fn my_search_upper(
     klow: i64,
     comp: f64,
     nut: i32,
-) -> (/* ell */ i64, /* comp */ f64) {
+) -> (/* ell */ Option<i64>, /* comp */ Option<f64>) {
     let last_coefficient_index = num_coefficients + 1;
     let mut index = 0;
     let mut comp = comp;
@@ -197,69 +147,16 @@ fn my_search_upper(
                 comp = weighted_err;
             } else {
                 index = k;
-                return (index, comp);
+                return (Some(index), Some(comp));
             }
         }
     }
 
-    (index, comp)
-}
-
-fn search_for_lower_endpoint(
-    num_coefficients: usize,
-    grid: &DenseGrid,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    kup: i64,
-    comp: f64,
-    nut: i32,
-    ell: i64,
-) -> (/* ell */ i64, /* comp */ f64) {
-    let last_coefficient_index = num_coefficients + 1;
-    let mut comp = comp;
-    let mut ell = ell;
-
-    loop {
-        ell += 1;
-        if ell >= kup {
-            break;
-        }
-        let err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - comp <= 0.0 {
-            break;
-        }
-        comp = (nut as f64) * (err as f64);
+    if !found {
+        return (None, None)
+    } else {
+        return (Some(index), Some(comp));
     }
-
-    (ell, comp)
-}
-
-fn search_for_upper_endpoint(
-    num_coefficients: usize,
-    grid: &DenseGrid,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    klow: i64,
-    comp: f64,
-    nut: i32,
-    ell: i64,
-) -> /* ell */ i64 {
-    let last_coefficient_index = num_coefficients + 1;
-    let mut comp = comp;
-    let mut ell = ell;
-
-    while ell > klow {
-        let err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - comp <= 0.0 {
-            break;
-        }
-        comp = (nut as f64) * (err as f64);
-        ell -= 1;
-    }
-
-    ell
 }
 
 fn calculate_err(
