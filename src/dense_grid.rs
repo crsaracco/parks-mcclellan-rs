@@ -184,7 +184,6 @@ fn generate_wt(bands: &Vec<Band>, j_type: JType, grid: &Vec<f32>, grid_band: &Ve
 // with the appropriate code to evaluate the ideal magnitude.
 // Note that the parameter `freq` is the value of **normalized** frequency needed for evaluation.
 fn eff(bands: &Vec<Band>, freq: f32, l_band: usize, j_type: JType) -> f32 {
-    println!("band: {} | band_freq: {}", l_band, bands[l_band].desired_value);
     match j_type {
         JType::Differentiator => {
             bands[l_band].desired_value * freq

@@ -30,129 +30,136 @@ pub fn endpoints_search(
     let mut knz = knz;
     let mut y1 = deviation;
 
-    'search_endpoints: loop {
-        let zeroth_grid_index = extremal_frequencies.get_grid_index(0);
-        if k1 > zeroth_grid_index {
-            k1 = zeroth_grid_index;
-        }
-        let almost_last_grid_index = extremal_frequencies.get_grid_index(last_coefficient_index - 1);
-        if knz < almost_last_grid_index {
-            knz = almost_last_grid_index;
-        }
-        nut1 = *nut;
-        *nut = -nu;
-        let mut ell = 0;
-        let kup = k1;
-        *comp = *comp * 1.00001;
-        'loop_06: loop {
-            ell += 1;
-            if ell >= kup {
-                ell = grid.n_grid() as i64 + 1;
-                let klow = knz;
-                *nut = -nut1;
-                *comp = y1 * 1.00001;
+    // Restrict the range of endpoint frequencies to search in.
+    // The highest left-endpoint is min(old_k1, new_k1)
+    // The lowest right-endpoint is max(old_knz, new_knz)
+    k1 = k1.min(extremal_frequencies.get_grid_index(0));
+    knz = knz.max(extremal_frequencies.get_grid_index(last_coefficient_index - 1));
 
-                ell = ell - 1;
-                if ell <= klow {
-                    if extremal_frequencies_changed {
-                        return EndpointSearchResult::KeepIteratingRemez;
-                    }
-                    return EndpointSearchResult::StopIteratingRemez;
-                }
-                let mut err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
+    let err_to_beat = *comp * 1.00001;
 
-                'loop_07: while (*nut as f64) * (err as f64) - *comp <= 0.0 {
-                    ell = ell - 1;
-                    if ell <= klow {
-                        if extremal_frequencies_changed {
-                            return EndpointSearchResult::KeepIteratingRemez;
-                        }
-                        return EndpointSearchResult::StopIteratingRemez;
-                    }
-                    err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-                }
+    // Some other variables
+    nut1 = *nut;
+    *nut = -nu;
+    let mut ell = 1;
+    let kup = k1;
+    *comp = err_to_beat;
+    let mut err;
 
-                *comp = (*nut as f64) * (err as f64);
-
-                loop {
-                    ell -= 1;
-                    if ell <= klow {
-                        break;
-                    }
-                    err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-                    let dtemp = (*nut as f64) * (err as f64) - *comp;
-                    if dtemp <= 0.0 {
-                        break;
-                    }
-                    *comp = (*nut as f64) * (err as f64);
-                }
-
-                extremal_frequencies.set_grid_index(coefficient_off_end_index - 1, ell + 1);
-                extremal_frequencies.shift_grid_indexes_left();
-                return EndpointSearchResult::KeepIteratingRemez;
-            }
-            let mut err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-            let dtemp = (*nut as f64) * (err as f64) - *comp;
-            if dtemp <= 0.0 {
-                continue 'loop_06;
-            }
-
+    while ell < kup {
+        err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
+        if (*nut as f64) * (err as f64) - *comp > 0.0 {
             *comp = (*nut as f64) * (err as f64);
 
-            loop {
-                ell = ell + 1;
-                if ell >= kup {
-                    break;
-                }
-                err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
-                let dtemp = (*nut as f64) * (err as f64) - *comp;
-                if dtemp <= 0.0 {
-                    break;
-                }
-                *comp = (*nut as f64) * (err as f64);
+            search_for_lower_endpoint(num_coefficients, grid, x, y, ad, kup, comp, nut, &mut ell, extremal_frequencies);
+
+            if *comp > y1 {
+                y1 = *comp;
             }
 
-            extremal_frequencies.set_grid_index(coefficient_off_end_index - 1, ell - 1);
-            break 'search_endpoints;
-        }
-    }
 
-    if *comp > y1 {
-        y1 = *comp;
-    }
-    k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
-    let mut local_ell = grid.n_grid() as i64 + 1;
-    let klow = knz;
-    *nut = -nut1;
-    *comp = y1 * 1.00001;
-    'loop_11: loop {
-        local_ell -= 1;
-        if local_ell <= klow {
+
+            ell = grid.n_grid() as i64;
+            *nut = -nut1;
+            *comp = y1 * 1.00001;
+
+            while ell > knz {
+                err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
+                if (*nut as f64) * (err as f64) - *comp > 0.0 {
+                    search_for_upper_endpoint(num_coefficients, grid, x, y, ad, knz, comp, nut, &mut ell, extremal_frequencies);
+                    return EndpointSearchResult::KeepIteratingRemez;
+                }
+                ell -= 1;
+            }
+
+            k1 = extremal_frequencies.get_grid_index(last_coefficient_index);
             extremal_frequencies.shift_grid_indexes_right(k1);
             return EndpointSearchResult::KeepIteratingRemez;
+
+
         }
-        let err = calculate_err(grid, x, y, ad, local_ell, last_coefficient_index);
-        let dtemp = (*nut as f64) * (err as f64) - *comp;
-        if dtemp <= 0.0 {
-            continue 'loop_11;
-        }
-        break 'loop_11;
+        ell += 1;
     }
 
+
+
+    ell = grid.n_grid() as i64;
+    *nut = -nut1;
+    *comp = y1 * 1.00001;
+
+    while ell > knz {
+        err = calculate_err(grid, x, y, ad, ell, last_coefficient_index);
+        if (*nut as f64) * (err as f64) - *comp > 0.0 {
+            search_for_upper_endpoint(num_coefficients, grid, x, y, ad, knz, comp, nut, &mut ell, extremal_frequencies);
+            return EndpointSearchResult::KeepIteratingRemez;
+        }
+        ell -= 1;
+    }
+
+    if extremal_frequencies_changed {
+        return EndpointSearchResult::KeepIteratingRemez;
+    }
+    return EndpointSearchResult::StopIteratingRemez;
+
+
+}
+
+fn search_for_lower_endpoint(
+    num_coefficients: usize,
+    grid: &DenseGrid,
+    x: &[f64; 66],
+    y: &[f64; 66],
+    ad: &[f64; 66],
+    kup: i64,
+
+    comp: &mut f64,
+    nut: &mut i32,
+    ell: &mut i64,
+    extremal_frequencies: &mut ExtremalFrequencies,
+) {
+    let last_coefficient_index = num_coefficients + 1;
+
     loop {
-        let err = calculate_err(grid, x, y, ad, local_ell, last_coefficient_index);
-        *comp = (*nut as f64) * (err as f64);
-        local_ell -= 1;
-        if local_ell <= klow {
+        *ell += 1;
+        if *ell >= kup {
             break;
         }
+        let err = calculate_err(grid, x, y, ad, *ell, last_coefficient_index);
         if (*nut as f64) * (err as f64) - *comp <= 0.0 {
             break;
         }
+        *comp = (*nut as f64) * (err as f64);
     }
-    extremal_frequencies.set_grid_index(coefficient_off_end_index-1, local_ell+1);
+
+    extremal_frequencies.set_grid_index(last_coefficient_index,  *ell - 1);
+}
+
+fn search_for_upper_endpoint(
+    num_coefficients: usize,
+    grid: &DenseGrid,
+    x: &[f64; 66],
+    y: &[f64; 66],
+    ad: &[f64; 66],
+    klow: i64,
+
+    comp: &mut f64,
+    nut: &mut i32,
+    ell: &mut i64,
+    extremal_frequencies: &mut ExtremalFrequencies,
+) {
+    let last_coefficient_index = num_coefficients + 1;
+
+    while *ell > klow {
+        let err = calculate_err(grid, x, y, ad, *ell, last_coefficient_index);
+        if (*nut as f64) * (err as f64) - *comp <= 0.0 {
+            break;
+        }
+        *comp = (*nut as f64) * (err as f64);
+        *ell -= 1;
+    }
+
+    extremal_frequencies.set_grid_index(last_coefficient_index, *ell + 1);
     extremal_frequencies.shift_grid_indexes_left();
-    return EndpointSearchResult::KeepIteratingRemez;
 }
 
 fn calculate_err(

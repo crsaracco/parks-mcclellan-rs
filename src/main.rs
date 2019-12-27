@@ -330,8 +330,8 @@ fn recalculate_extremal_frequencies(
     let mut comp = 0.0;
 
     // Capture k1 and knz before the extremal frequencies are changed by `find_nth_extremal_frequency`
-    let k1 = extremal_frequencies.get_grid_index(0);
-    let knz = extremal_frequencies.get_grid_index(num_coefficients);
+    let old_k1 = extremal_frequencies.get_grid_index(0);
+    let old_knz = extremal_frequencies.get_grid_index(num_coefficients);
 
     // Find the extremal frequencies
     let extremal_frequencies_changed = extremal_frequency_search::find_extremal_frequencies(
@@ -354,8 +354,8 @@ fn recalculate_extremal_frequencies(
         y,
         ad,
         nu,
-        k1,
-        knz,
+        old_k1,
+        old_knz,
         deviation,
         &mut comp,
         &mut nut,
