@@ -354,11 +354,10 @@ fn recalculate_extremal_frequencies(
         y,
         ad,
         nu,
+        nut,
         old_k1,
         old_knz,
         deviation,
-        &mut comp,
-        &mut nut,
         extremal_frequencies_changed,
         extremal_frequencies,
     );

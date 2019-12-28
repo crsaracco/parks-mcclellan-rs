@@ -3,7 +3,6 @@ use super::DenseGrid;
 pub struct ExtremalFrequencies {
     dense_grid_indexes: [i64; 66],
     // Probably can be rolled into a Vec. Note there are (num_coefficients + 1) frequencies.
-    // TODO: actually it looks like Parks-McClellan uses this last index as a scratch area. wtf?
     num_coefficients: usize,
 }
 
@@ -37,19 +36,20 @@ impl ExtremalFrequencies {
         self.dense_grid_indexes[grid_index] = value;
     }
 
-    pub fn shift_grid_indexes_left(&mut self) {
-        for j in 0..self.num_coefficients + 1 {
+    pub fn shift_grid_indexes_left(&mut self, last_grid_index: i64) {
+        for j in 0..=self.num_coefficients {
             let temp_freq = self.get_grid_index(j+1);
             self.set_grid_index(j, temp_freq);
         }
+        self.dense_grid_indexes[self.num_coefficients] = last_grid_index;
     }
 
-    pub fn shift_grid_indexes_right(&mut self, last_grid_index: i64) {
+    pub fn shift_grid_indexes_right(&mut self, first_grid_index: i64) {
         for j in 0..self.num_coefficients {
             let temp_freq = self.get_grid_index(self.num_coefficients - j - 1);
             self.set_grid_index(self.num_coefficients - j, temp_freq);
         }
-        self.set_grid_index(0, last_grid_index);
+        self.dense_grid_indexes[0] = first_grid_index;
     }
 
     #[allow(dead_code)]
