@@ -1,8 +1,8 @@
 use super::DenseGrid;
 
 pub struct ExtremalFrequencies {
+    // TODO: Probably can be rolled into a Vec. Note there are (num_coefficients + 1) frequencies.
     dense_grid_indexes: [i64; 66],
-    // Probably can be rolled into a Vec. Note there are (num_coefficients + 1) frequencies.
     num_coefficients: usize,
 }
 
@@ -46,14 +46,5 @@ impl ExtremalFrequencies {
             self.set_grid_index(self.num_coefficients - j, temp_freq);
         }
         self.dense_grid_indexes[0] = first_grid_index;
-    }
-
-    #[allow(dead_code)]
-    fn debug_print_dense_grid_indexes(&self, prefix: &str) {
-        print!("{}: ", prefix);
-        for x in self.dense_grid_indexes.iter() {
-            print!("{}, ", *x);
-        }
-        println!();
     }
 }

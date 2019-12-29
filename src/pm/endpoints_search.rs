@@ -1,4 +1,4 @@
-use crate::DenseGrid;
+use super::DenseGrid;
 use super::ExtremalFrequencies;
 
 pub enum EndpointSearchResult {

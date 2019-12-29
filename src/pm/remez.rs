@@ -1,9 +1,9 @@
-use crate::endpoints_search;
-use crate::extremal_frequencies::ExtremalFrequencies;
-use crate::extremal_frequency_search;
-use crate::dense_grid::DenseGrid;
-use crate::lagrange_interpolation;
-use crate::PI2;
+use super::endpoints_search;
+use super::extremal_frequencies::ExtremalFrequencies;
+use super::extremal_frequency_search;
+use super::dense_grid::DenseGrid;
+use super::lagrange_interpolation;
+use super::PI2;
 
 // This function implements the Remez Exchange Algorithm for the weighted Chebyshev approximation
 // of a continuous function with a sum of cosines.
@@ -50,16 +50,14 @@ fn remez_iterate(
     let mut devl = -1.0f32;
 
     // TODO: make num_iterations max a parameter
-    for num_iterations in 0..25 {
-        println!("num_iterations: {}", num_iterations);
-
+    for _ in 0..25 {
         extremal_frequencies.set_grid_index(last_coefficient_index, grid.n_grid() as i64 + 1);
 
         // Lagrange interpolation
         *x = lagrange_interpolation::lagrange_x_coordinates(num_coefficients, grid, extremal_frequencies);
         *ad = lagrange_interpolation::lagrange_interpolation_coefficients(num_coefficients, x);
         deviation = lagrange_interpolation::deviation(num_coefficients, grid, ad, extremal_frequencies);
-        println!("DEVIATION: {}", deviation);
+        // println!("DEVIATION: {}", deviation);
         let nu = if deviation > 0.0 { -1 } else { 1 };
         deviation = deviation.abs();
         *y = lagrange_interpolation::lagrange_y_coordinates(num_coefficients, grid, nu, deviation, extremal_frequencies);
@@ -67,10 +65,11 @@ fn remez_iterate(
         // If deviation this time is less than (or equal to) the deviation last time (devl),
         // then we've failed to converge. Break out of iteration, and calculate filter coefficients.
         if deviation <= devl as f64 {
-            println!("***** FAILURE TO CONVERGE *****");
-            println!("Number of iterations: {}", num_iterations);
-            println!("If the number of iterations is greater than 3,");
-            println!("the design might be correct, but should be verified by FFT.");
+            // TODO: represent this as a Result<T> type, or maybe your own enum type.
+            // println!("***** FAILURE TO CONVERGE *****");
+            // println!("Number of iterations: {}", num_iterations);
+            // println!("If the number of iterations is greater than 3,");
+            // println!("the design might be correct, but should be verified by FFT.");
             break;
         }
 
@@ -111,7 +110,8 @@ fn recalculate_extremal_frequencies(
 ) -> Result<(), ()> {
     use endpoints_search::EndpointSearchResult;
 
-    let mut nut = -nu;
+    let left_nu = nu;
+    let mut right_nu = -nu;
     let mut comp = 0.0;
 
     // Capture k1 and knz before the extremal frequencies are changed by `find_extremal_frequencies`
@@ -126,7 +126,7 @@ fn recalculate_extremal_frequencies(
         y,
         ad,
         deviation,
-        &mut nut,
+        &mut right_nu,
         &mut comp,
         extremal_frequencies,
     );
@@ -138,8 +138,8 @@ fn recalculate_extremal_frequencies(
         x,
         y,
         ad,
-        nu,
-        nut,
+        left_nu,
+        right_nu,
         old_k1,
         old_knz,
         deviation,
@@ -151,9 +151,9 @@ fn recalculate_extremal_frequencies(
         EndpointSearchResult::KeepIteratingRemez => return Ok(()),
         EndpointSearchResult::StopIteratingRemez => return Err(()),
     };
-
 }
 
+// TODO: Desperately needs to be refactored.
 fn calculate_alpha(
     num_coefficients: usize,
     grid: &DenseGrid,
@@ -166,7 +166,7 @@ fn calculate_alpha(
     let mut a = [0.0f64; 66];
     let mut aa = 0.0f32;
     let mut bb = 0.0f32;
-    let mut kkk = 0;
+    let mut kk = false;
 
     let fsh: f32 = 1.0e-06;
     x[last_coefficient_index] = -2.0;
@@ -175,13 +175,13 @@ fn calculate_alpha(
     let mut ell = 1;
 
     if grid.get_grid(0) < 0.01 && grid.get_grid(grid.n_grid()-1) > 0.49 {
-        kkk = 1;
+        kk = true;
     }
     if num_coefficients <= 3 {
-        kkk = 1;
+        kk = true;
     }
 
-    if kkk != 1 {
+    if !kk {
         let dtemp = (PI2 * grid.get_grid(0) as f64).cos();
         let dnum = (PI2 * grid.get_grid(grid.n_grid()-1) as f64).cos();
         aa = (2.0 / (dtemp - dnum)) as f32;
@@ -192,28 +192,28 @@ fn calculate_alpha(
         let mut ft = (j-1) as f32;
         ft = ft * delf;
         let mut xt: f32 = (PI2 * ft as f64).cos() as f32;
-        if kkk != 1 {
+        if !kk {
             xt = (xt - bb) / aa;
             let xt1 = (1.0 - xt.powi(2)).sqrt();
             ft = (xt1.atan2(xt) as f64 / PI2) as f32;
         }
 
-        'loop_01: loop {
+        loop {
             let xe: f32 = x[(ell -1) as usize] as f32;
             if xt > xe {
                 if (xt-xe) < fsh {
                     a[j-1] = y[(ell -1) as usize];
-                    break 'loop_01;
+                    break;
                 } else {
-                    a[j - 1] = grid.gee(Some(ft), &x, &y, &ad, 1, last_coefficient_index);
-                    break 'loop_01;
+                    a[j - 1] = grid.frequency_response(Some(ft), &x, &y, &ad, 1, last_coefficient_index);
+                    break;
                 }
             } else if (xe-xt) < fsh {
                 a[j-1] = y[(ell -1) as usize];
-                break 'loop_01;
+                break;
             } else {
                 ell = ell +1;
-                continue 'loop_01;
+                continue;
             }
         }
 
@@ -248,12 +248,12 @@ fn calculate_alpha(
     }
     alpha[0] = alpha[0] / (cn as f32);
 
-    if kkk == 1 {
+    if kk {
         if num_coefficients > 3 {
             return alpha;
         }
-        alpha[num_coefficients] = 0.0; // alpha[nfcns+1-1]
-        alpha[num_coefficients +1] = 0.0; // alpha[nfcns+2-1]
+        alpha[num_coefficients] = 0.0;
+        alpha[num_coefficients +1] = 0.0;
         return alpha;
     }
 
@@ -269,7 +269,7 @@ fn calculate_alpha(
             aa = 0.5 * aa;
             bb = 0.5 * bb;
         }
-        p[j] = 0.0; // p[j+1-1]
+        p[j] = 0.0;
         for k in 1..(j + 1) {
             a[k-1] = p[k-1];
             p[k-1] = 2.0 * (bb as f64) * a[k - 1];
@@ -277,11 +277,11 @@ fn calculate_alpha(
         p[1] = p[1] + a[0] * 2.0 * (aa as f64);
         let jm1 = j - 1;
         for k in 1..(jm1 + 1) {
-            p[k - 1] = p[k - 1] + q[k - 1] + (aa as f64) * a[k]; // a[k+1-1]
+            p[k - 1] = p[k - 1] + q[k - 1] + (aa as f64) * a[k];
         }
         let jp1 = j + 1;
         for k in 3..(jp1 + 1) {
-            p[k - 1] = p[k - 1] + (aa as f64) * a[k - 2] // a[k-1-1]
+            p[k - 1] = p[k - 1] + (aa as f64) * a[k - 2];
         }
 
         if j != nm1 {

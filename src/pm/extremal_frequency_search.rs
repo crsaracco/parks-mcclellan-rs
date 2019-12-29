@@ -9,7 +9,7 @@ pub fn find_extremal_frequencies(
     ad: &[f64; 66],
     deviation: f64,
 
-    nut: &mut i32,
+    sign: &mut i32,
     comp: &mut f64,
     extremal_frequencies: &mut ExtremalFrequencies,
 ) -> bool /* extremal_frequencies_changed */ {
@@ -19,7 +19,7 @@ pub fn find_extremal_frequencies(
     let mut extremal_frequencies_changed = false;
 
     for j in 1..=last_coefficient_index {
-        *nut = -*nut;
+        *sign = -*sign;
         *comp = deviation;
 
         search_for_frequency(
@@ -30,7 +30,7 @@ pub fn find_extremal_frequencies(
             ad,
             deviation,
             j,
-            *nut,
+            *sign,
             comp,
             &mut klow,
             &mut extremal_frequencies_changed,
@@ -49,7 +49,7 @@ fn search_for_frequency(
     ad: &[f64; 66],
     deviation: f64,
     j: usize,
-    nut: i32,
+    sign: i32,
 
     comp: &mut f64,
     klow: &mut i64,
@@ -64,8 +64,8 @@ fn search_for_frequency(
     let mut ell = extremal_frequencies.get_grid_index(j - 1) + 1;
     if ell < kup { // Careful not to overflow...
         let err = grid.calculate_error(None, &x, &y, &ad, ell, last_coefficient_index);
-        if deviation < (nut as f64) * (err as f64) {
-            search_upwards(num_coefficients, grid, x, y, ad, nut, err, ell, kup, j,
+        if deviation < (sign as f64) * (err as f64) {
+            search_upwards(num_coefficients, grid, x, y, ad, sign, err, ell, kup, j,
                            klow, comp, extremal_frequencies_changed, extremal_frequencies);
             return; // ON TO THE NEXT EXTREMA
         }
@@ -76,10 +76,10 @@ fn search_for_frequency(
     ell = extremal_frequencies.get_grid_index(j - 1) - 1;
     if ell > *klow { // Careful not to underflow...
         let err = grid.calculate_error(None, &x, &y, &ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp > 0.0 {
+        if (sign as f64) * (err as f64) - *comp > 0.0 {
             // There is a local max of error curve. Keep searching k-2, k-3, ..., klow
             // until the local max is found.
-            search_downwards(num_coefficients, grid, x, y, ad, nut, err, ell, j,
+            search_downwards(num_coefficients, grid, x, y, ad, sign, err, ell, j,
                              klow, comp, extremal_frequencies_changed, extremal_frequencies);
             return; // ON TO THE NEXT EXTREMA
         }
@@ -100,10 +100,10 @@ fn search_for_frequency(
     ell = extremal_frequencies.get_grid_index(j - 1) - 2;
     while ell > *klow {
         let err = grid.calculate_error(None, &x, &y, &ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp > 0.0 {
+        if (sign as f64) * (err as f64) - *comp > 0.0 {
             // There is a local max of error curve. Keep searching k-2, k-3, ..., klow
             // until the local max is found.
-            search_downwards(num_coefficients, grid, x, y, ad, nut, err, ell, j,
+            search_downwards(num_coefficients, grid, x, y, ad, sign, err, ell, j,
                              klow, comp, extremal_frequencies_changed, extremal_frequencies);
             return; // ON TO THE NEXT EXTREMA
         }
@@ -114,9 +114,9 @@ fn search_for_frequency(
     ell = extremal_frequencies.get_grid_index(j - 1) + 2;
     while ell < kup {
         let err = grid.calculate_error(None, &x, &y, &ad, ell, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp > 0.0 {
+        if (sign as f64) * (err as f64) - *comp > 0.0 {
             // Found a local maximum!
-            search_upwards(num_coefficients, grid, x, y, ad, nut, err, ell, kup, j,
+            search_upwards(num_coefficients, grid, x, y, ad, sign, err, ell, kup, j,
                            klow, comp, extremal_frequencies_changed, extremal_frequencies);
             return; // ON TO THE NEXT EXTREMA
         }
@@ -137,7 +137,7 @@ fn search_downwards(
     x: &[f64; 66],
     y: &[f64; 66],
     ad: &[f64; 66],
-    nut: i32,
+    sign: i32,
     err: f32,
     ell: i64,
     j: usize,
@@ -148,18 +148,18 @@ fn search_downwards(
 ) {
     let last_coefficient_index = num_coefficients + 1;
     let mut local_max_found = false;
-    *comp = (nut as f64) * (err as f64);
+    *comp = (sign as f64) * (err as f64);
 
     for k in ((*klow+1)..(ell)).rev() {
         let err = grid.calculate_error(None, &x, &y, &ad, k, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp <= 0.0 {
+        if (sign as f64) * (err as f64) - *comp <= 0.0 {
             // Local max found!
             local_max_found = true;
             update_loop_variables_downwards_loop(j-1, k+1, klow, extremal_frequencies_changed, extremal_frequencies);
             *extremal_frequencies_changed = true;
             break;
         }
-        *comp = (nut as f64) * (err as f64);
+        *comp = (sign as f64) * (err as f64);
     }
 
     if !local_max_found {
@@ -176,7 +176,7 @@ fn search_upwards(
     x: &[f64; 66],
     y: &[f64; 66],
     ad: &[f64; 66],
-    nut: i32,
+    sign: i32,
     err: f32,
     ell: i64,
     kup: i64,
@@ -188,18 +188,18 @@ fn search_upwards(
 ) {
     let last_coefficient_index = num_coefficients + 1;
     let mut local_max_found = false;
-    *comp = (nut as f64) * (err as f64);
+    *comp = (sign as f64) * (err as f64);
 
     for k in (ell+1)..kup {
         let err = grid.calculate_error(None, &x, &y, &ad, k, last_coefficient_index);
-        if (nut as f64) * (err as f64) - *comp <= 0.0 {
+        if (sign as f64) * (err as f64) - *comp <= 0.0 {
             // Error is starting to fall. Record the current best.
             // Go to next extremal frequency.
             update_loop_variables_upwards_loop(j-1, k-1, klow, extremal_frequencies_changed, extremal_frequencies);
             local_max_found = true;
             break; // ON TO THE NEXT EXTREMA
         }
-        *comp = (nut as f64) * (err as f64);
+        *comp = (sign as f64) * (err as f64);
     }
 
     if !local_max_found {
