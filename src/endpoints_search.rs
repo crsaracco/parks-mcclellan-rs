@@ -96,7 +96,7 @@ fn search_for_lower_endpoint(
     // as an endpoint frequency.
     let mut k = 1;
     while k <= k_max {
-        let error = calculate_err(grid, x, y, ad, k, last_coefficient_index);
+        let error = grid.calculate_error(None, x, y, ad, k, last_coefficient_index);
         let sign_corrected_error = (sign as f64) * (error as f64);
         if sign_corrected_error > deviation {
             largest_error = sign_corrected_error;
@@ -115,7 +115,7 @@ fn search_for_lower_endpoint(
     // As soon as the weighted error starts decreasing, we've found our local max.
     k += 1;
     while k <= k_max {
-        let error = calculate_err(grid, x, y, ad, k, last_coefficient_index);
+        let error = grid.calculate_error(None, x, y, ad, k, last_coefficient_index);
         let sign_corrected_error = (sign as f64) * (error as f64);
         if sign_corrected_error <= largest_error {
             return Some((k, largest_error));
@@ -149,7 +149,7 @@ fn search_for_upper_endpoint(
     // as an endpoint frequency.
     let mut k = grid.n_grid() as i64;
     while k >= k_min {
-        let error = calculate_err(grid, x, y, ad, k, last_coefficient_index);
+        let error = grid.calculate_error(None, x, y, ad, k, last_coefficient_index);
         let sign_corrected_error = (sign as f64) * (error as f64);
         if sign_corrected_error > deviation {
             largest_error = sign_corrected_error;
@@ -168,7 +168,7 @@ fn search_for_upper_endpoint(
     // As soon as the weighted error starts decreasing, we've found our local max.
     k -= 1;
     while k >= k_min {
-        let error = calculate_err(grid, x, y, ad, k, last_coefficient_index);
+        let error = grid.calculate_error(None, x, y, ad, k, last_coefficient_index);
         let sign_corrected_error = (sign as f64) * (error as f64);
         if sign_corrected_error <= largest_error {
             return Some((k, largest_error));
@@ -181,16 +181,4 @@ fn search_for_upper_endpoint(
     // We didn't find a local max (the error kept increasing all the way to k_min)
     // Just return k_min as the new endpoint.
     return Some((k_min, largest_error));
-}
-
-fn calculate_err(
-    grid: &DenseGrid,
-    x: &[f64; 66],
-    y: &[f64; 66],
-    ad: &[f64; 66],
-    ell: i64,
-    last_coefficient_index: usize,
-) -> f32 {
-    let err = grid.gee(None, x, y, ad, ell, last_coefficient_index) as f32;
-    (err - grid.get_des((ell - 1) as usize)) * grid.get_wt((ell - 1) as usize)
 }

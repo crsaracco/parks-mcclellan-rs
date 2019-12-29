@@ -139,7 +139,7 @@ mod tests {
             weight: 10.0,
         });
 
-        let pm_output = design(32, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(32, FilterType::MultipleBand, &bands, 16);
 
         assert_eq!(pm_output.filter_length, 32);
 
@@ -186,7 +186,7 @@ mod tests {
             weight: 1.0,
         });
 
-        let pm_output = design(32, JType::Differentiator, &bands, 20);
+        let pm_output = design_filter(32, FilterType::Differentiator, &bands, 20);
 
         assert_eq!(pm_output.filter_length, 32);
 
@@ -236,7 +236,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(3, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             3.8196599480e-1,    5.0000000000e-1,
@@ -280,7 +280,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(3, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             3.8196599480e-1,    5.0000000000e-1,
@@ -324,7 +324,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(3, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             3.8196599480e-1,    5.0000000000e-1,
@@ -368,7 +368,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(3, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             3.8196599480e-1,    5.0000000000e-1,
@@ -412,7 +412,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::MultipleBand, &bands, 61);
+        let pm_output = design_filter(3, FilterType::MultipleBand, &bands, 61);
 
         let expected_impulse_response = vec![
             3.8196599480e-1,    5.0000000000e-1,
@@ -456,7 +456,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::MultipleBand, &bands, 64);
+        let pm_output = design_filter(3, FilterType::MultipleBand, &bands, 64);
 
         let expected_impulse_response = vec![
             3.8196599480e-1,    5.0000000000e-1,
@@ -500,7 +500,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(4, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             1.5172423420e-1,    4.9483287330e-1,
@@ -544,7 +544,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(4, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             1.5172423420e-1,    4.9483287330e-1,
@@ -588,7 +588,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(4, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.5172423420e-1,    4.9483287330e-1,
@@ -632,7 +632,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(4, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             1.5172423420e-1,    4.9483287330e-1,
@@ -676,7 +676,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::MultipleBand, &bands, 61);
+        let pm_output = design_filter(4, FilterType::MultipleBand, &bands, 61);
 
         let expected_impulse_response = vec![
             1.5172423420e-1,    4.9483287330e-1,
@@ -720,7 +720,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::MultipleBand, &bands, 64);
+        let pm_output = design_filter(4, FilterType::MultipleBand, &bands, 64);
 
         let expected_impulse_response = vec![
             1.5172423420e-1,    4.9483287330e-1,
@@ -764,7 +764,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.1928418650e-2,   -2.2930486130e-2,    2.9667090620e-2,    3.5365093500e-2,
@@ -811,7 +811,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             -1.1470410040e-2,   -2.3657456040e-2,    2.8824593870e-2,    3.5916417840e-2,
@@ -858,7 +858,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.1686353010e-2,   -2.3650348190e-2,    2.8849342840e-2,    3.5625636580e-2,
@@ -905,7 +905,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -1.1721549560e-2,   -2.3628782480e-2,    2.8876205910e-2,    3.5589434210e-2,
@@ -952,7 +952,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 61);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 61);
 
         let expected_impulse_response = vec![
             -1.1719172820e-2,   -2.3625576870e-2,    2.8871141370e-2,    3.5584531720e-2,
@@ -999,7 +999,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 64);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 64);
 
         let expected_impulse_response = vec![
             -1.1719881560e-2,   -2.3624714460e-2,    2.8872091320e-2,    3.5583749410e-2,
@@ -1046,7 +1046,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(33, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(33, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             -9.7805095720e-5,   -1.9461156330e-3,    2.7027918260e-4,    4.5151663940e-3,
@@ -1098,7 +1098,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(33, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(33, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             -1.4601272600e-5,   -2.1017156540e-3,    1.8827044190e-5,    4.6686795540e-3,
@@ -1150,7 +1150,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(33, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(33, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.0668012720e-7,   -2.1073303650e-3,    4.6326920260e-7,    4.6487320210e-3,
@@ -1202,7 +1202,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(33, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(33, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -1.5266058430e-6,   -2.1051694640e-3,    4.7413591350e-6,    4.6467911450e-3,
@@ -1254,7 +1254,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(33, JType::MultipleBand, &bands, 61);
+        let pm_output = design_filter(33, FilterType::MultipleBand, &bands, 61);
 
         let expected_impulse_response = vec![
             -2.8809511220e-8,   -2.1071133670e-3,    8.6646210210e-8,    4.6479739250e-3,
@@ -1306,7 +1306,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(33, JType::MultipleBand, &bands, 64);
+        let pm_output = design_filter(33, FilterType::MultipleBand, &bands, 64);
 
         let expected_impulse_response = vec![
             -9.3449735060e-8,   -2.1069769280e-3,    2.4235069420e-7,    4.6478137370e-3,
@@ -1358,7 +1358,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(34, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(34, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             5.7205540360e-4,   -1.3089210260e-3,   -1.9107917320e-3,    2.9390624260e-3,
@@ -1410,7 +1410,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(34, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(34, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             6.8972900040e-4,   -1.3753577370e-3,   -2.1243463270e-3,    2.9001233630e-3,
@@ -1462,7 +1462,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(34, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(34, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             6.9417728810e-4,   -1.3655875810e-3,   -2.1471329960e-3,    2.8724223380e-3,
@@ -1514,7 +1514,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(34, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(34, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             6.9215276740e-4,   -1.3687446480e-3,   -2.1421585700e-3,    2.8776898980e-3,
@@ -1566,7 +1566,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(34, JType::MultipleBand, &bands, 61);
+        let pm_output = design_filter(34, FilterType::MultipleBand, &bands, 61);
 
         let expected_impulse_response = vec![
             6.9337076270e-4,   -1.3688632750e-3,   -2.1450170320e-3,    2.8764603190e-3,
@@ -1618,7 +1618,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(34, JType::MultipleBand, &bands, 64);
+        let pm_output = design_filter(34, FilterType::MultipleBand, &bands, 64);
 
         let expected_impulse_response = vec![
             6.9321598860e-4,   -1.3688101900e-3,   -2.1447176110e-3,    2.8765536840e-3,
@@ -1670,7 +1670,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(103, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(103, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             -3.7950332650e-8,    2.3169121730e-8,    2.3372068370e-7,   -9.3711356900e-8,
@@ -1739,7 +1739,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(103, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(103, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             -3.5749888380e-8,    4.4603616800e-8,    2.4496910100e-7,   -1.8862969850e-7,
@@ -1808,7 +1808,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(103, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(103, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -4.4458033700e-8,    5.8217999310e-8,    3.1606907670e-7,   -2.2172622490e-7,
@@ -1877,7 +1877,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(103, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(103, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -4.1608004150e-8,    6.1180983830e-8,    3.0240931890e-7,   -2.4101981920e-7,
@@ -1946,7 +1946,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(104, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(104, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             2.2896514910e-7,   -2.0597082080e-7,   -1.1595847130e-6,    1.0854134870e-6,
@@ -2015,7 +2015,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(104, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(104, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             -1.0287480020e-7,    1.6789925890e-7,    4.8228309880e-7,   -8.1139882010e-7,
@@ -2085,7 +2085,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(104, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(104, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             2.1663130670e-7,   -3.5653295070e-7,   -1.3183645250e-6,    1.4412797780e-6,
@@ -2155,7 +2155,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(104, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(104, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             1.3903002250e-3,   -6.8450719120e-4,   -2.4218654730e-3,    2.0593712110e-3,
@@ -2224,7 +2224,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 3);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 3);
 
         let expected_impulse_response = vec![
             1.2134856660e-5,   -9.4922415880e-7,   -2.4764700360e-5,    5.5226810220e-6,
@@ -2300,7 +2300,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 4);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 4);
 
         let expected_impulse_response = vec![
             -4.9079631030e-6,   -3.7006091130e-6,    9.9486933320e-6,    1.3435306760e-5,
@@ -2376,7 +2376,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.5079915270e-7,   -8.1042298920e-7,   -1.5023859990e-6,    3.8520993260e-6,
@@ -2452,7 +2452,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -2.9506096240e-1,   -2.1212249990e-2,    5.8941400050e-1,    6.4105123280e-2,
@@ -2527,7 +2527,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(5, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(5, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.7225147780e-1,    2.7264657620e-1,    2.8129759430e-1,
@@ -2571,7 +2571,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(5, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(5, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             1.7220878600e-1,    2.7275833490e-1,    2.8115129470e-1,
@@ -2615,7 +2615,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(5, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(5, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             1.7224420610e-1,    2.7266561990e-1,    2.8127267960e-1,
@@ -2659,7 +2659,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(5, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(5, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             1.7219616470e-1,    2.7279138570e-1,    2.8110802170e-1,
@@ -2703,7 +2703,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(6, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(6, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             5.7075034830e-2,    2.5446560980e-1,    2.7620327470e-1,
@@ -2747,7 +2747,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(6, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(6, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             5.7066582140e-2,    2.5447952750e-1,    2.7619627120e-1,
@@ -2791,7 +2791,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(6, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(6, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             5.7109892370e-2,    2.5440812110e-1,    2.7623218300e-1,
@@ -2835,7 +2835,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(6, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(6, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             5.7112943380e-2,    2.5440308450e-1,    2.7623471620e-1,
@@ -2879,7 +2879,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.6626054420e-2,   -6.9641619920e-3,   -3.4036625180e-2,   -4.8550553620e-2,
@@ -2926,7 +2926,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             1.6604714100e-2,   -6.9665480410e-3,   -3.4042973070e-2,   -4.8545256260e-2,
@@ -2973,7 +2973,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             1.6619490460e-2,   -6.9735571740e-3,   -3.4042555840e-2,   -4.8542119560e-2,
@@ -3020,7 +3020,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             1.6611199830e-2,   -6.9524645810e-3,   -3.4039940690e-2,   -4.8550907520e-2,
@@ -3067,7 +3067,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(43, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(43, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             2.4129023950e-4,    4.4630825870e-5,   -6.1199563790e-4,   -1.2621002970e-3,
@@ -3121,7 +3121,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(43, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(43, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             2.4092210510e-4,    4.4559055820e-5,   -6.1146239750e-4,   -1.2610098350e-3,
@@ -3175,7 +3175,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(43, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(43, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             2.4126203790e-4,    4.5265009250e-5,   -6.1105226630e-4,   -1.2618330070e-3,
@@ -3229,7 +3229,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(43, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(43, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             2.4161032340e-4,    4.5395419870e-5,   -6.1145058130e-4,   -1.2627495450e-3,
@@ -3283,7 +3283,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(44, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(44, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             2.5466995430e-4,    2.3565371520e-4,   -3.0157432780e-4,   -1.1912961490e-3,
@@ -3337,7 +3337,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(44, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(44, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             2.5493226710e-4,    2.3592231450e-4,   -3.0151745890e-4,   -1.1916277000e-3,
@@ -3391,7 +3391,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(44, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(44, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             2.5533165900e-4,    2.3662275630e-4,   -3.0104361940e-4,   -1.1923700800e-3,
@@ -3445,7 +3445,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(44, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(44, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             2.5526719400e-4,    2.3682278700e-4,   -3.0059504210e-4,   -1.1920725230e-3,
@@ -3499,7 +3499,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(107, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(107, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -3.2031977070e-8,   -1.1279968960e-7,   -1.3722747380e-7,    1.5442859080e-7,
@@ -3569,7 +3569,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(107, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(107, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -2.7173491900e-8,   -9.0176612840e-8,   -8.8603336220e-8,    1.9940178220e-7,
@@ -3639,7 +3639,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(107, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(107, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             -3.0573296780e-8,   -1.0587321240e-7,   -1.2250437460e-7,    1.6669288530e-7,
@@ -3709,7 +3709,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(107, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(107, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             -2.4267876600e-8,   -7.7271096190e-8,   -6.5018646470e-8,    2.0615856040e-7,
@@ -3780,7 +3780,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(108, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(108, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.2131450830e-6,    3.4488512030e-6,    2.6248910670e-6,   -8.7666912800e-6,
@@ -3851,7 +3851,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(108, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(108, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -2.1217538230e-6,   -3.5501507230e-6,   -2.0200943710e-6,    2.2454366900e-6,
@@ -3922,7 +3922,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(108, JType::MultipleBand, &bands, 23);
+        let pm_output = design_filter(108, FilterType::MultipleBand, &bands, 23);
 
         let expected_impulse_response = vec![
             -3.8333490690e-7,   -1.1039578570e-6,   -9.5967266130e-7,    2.0147017490e-6,
@@ -3993,7 +3993,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(108, JType::MultipleBand, &bands, 24);
+        let pm_output = design_filter(108, FilterType::MultipleBand, &bands, 24);
 
         let expected_impulse_response = vec![
             -4.6491754800e-7,   -1.4354424140e-6,   -1.3834375070e-6,    2.4978853620e-6,
@@ -4064,7 +4064,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -3.9431947130e-7,   -1.5167981930e-6,   -1.4715758430e-6,    3.8804014370e-6,
@@ -4140,7 +4140,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             5.6462539530e-7,    2.1475527770e-6,    2.7946657610e-6,   -2.5387512320e-6,
@@ -4222,7 +4222,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(7, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(7, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             4.6523381020e-2,   -2.0000003280e-1,   -4.6523325150e-2,    2.0978866520e-1,
@@ -4274,7 +4274,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(7, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(7, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             4.6523381020e-2,   -2.0000003280e-1,   -4.6523325150e-2,    2.0978866520e-1,
@@ -4326,7 +4326,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(7, JType::MultipleBand, &bands, 31);
+        let pm_output = design_filter(7, FilterType::MultipleBand, &bands, 31);
 
         let expected_impulse_response = vec![
             4.6523381020e-2,   -2.0000003280e-1,   -4.6523325150e-2,    2.0978866520e-1,
@@ -4378,7 +4378,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(7, JType::MultipleBand, &bands, 32);
+        let pm_output = design_filter(7, FilterType::MultipleBand, &bands, 32);
 
         let expected_impulse_response = vec![
             4.6523381020e-2,   -2.0000003280e-1,   -4.6523325150e-2,    2.0978866520e-1,
@@ -4430,7 +4430,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(8, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(8, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.6926960650e-1,   -1.0437540710e-1,   -2.8724658490e-1,    2.2231715920e-1,
@@ -4482,7 +4482,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(8, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(8, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             1.6940073670e-1,   -1.0426492990e-1,   -2.8715848920e-1,    2.2253540160e-1,
@@ -4534,7 +4534,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(8, JType::MultipleBand, &bands, 31);
+        let pm_output = design_filter(8, FilterType::MultipleBand, &bands, 31);
 
         let expected_impulse_response = vec![
             1.6928377750e-1,   -1.0424983500e-1,   -2.8709349040e-1,    2.2243610020e-1,
@@ -4586,7 +4586,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(8, JType::MultipleBand, &bands, 32);
+        let pm_output = design_filter(8, FilterType::MultipleBand, &bands, 32);
 
         let expected_impulse_response = vec![
             1.6935145850e-1,   -1.0425144430e-1,   -2.8712207080e-1,    2.2249950470e-1,
@@ -4638,7 +4638,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -4.0730793030e-2,   -1.2830013410e-2,   -1.2071261180e-2,   -1.6163289550e-3,
@@ -4692,7 +4692,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -4.0728058670e-2,   -1.2864863500e-2,   -1.2010248380e-2,   -1.6363300380e-3,
@@ -4746,7 +4746,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 31);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 31);
 
         let expected_impulse_response = vec![
             -4.0729813280e-2,   -1.2838121500e-2,   -1.2059140950e-2,   -1.6224272550e-3,
@@ -4800,7 +4800,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 32);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 32);
 
         let expected_impulse_response = vec![
             -4.0737364440e-2,   -1.2833038340e-2,   -1.2054493650e-2,   -1.6187988220e-3,
@@ -4854,7 +4854,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(37, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(37, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -7.6172472910e-3,    3.7963695360e-3,    2.6189079510e-3,    6.8600727250e-3,
@@ -4913,7 +4913,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(37, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(37, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -7.6094171960e-3,    3.7917175800e-3,    2.6155025700e-3,    6.8725580350e-3,
@@ -4972,7 +4972,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(37, JType::MultipleBand, &bands, 31);
+        let pm_output = design_filter(37, FilterType::MultipleBand, &bands, 31);
 
         let expected_impulse_response = vec![
             -7.6259085910e-3,    3.7832176310e-3,    2.6211775840e-3,    6.8616382780e-3,
@@ -5031,7 +5031,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(37, JType::MultipleBand, &bands, 32);
+        let pm_output = design_filter(37, FilterType::MultipleBand, &bands, 32);
 
         let expected_impulse_response = vec![
             -7.6231346470e-3,    3.7855841220e-3,    2.6194953830e-3,    6.8615111520e-3,
@@ -5090,7 +5090,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(38, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(38, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -6.8362783640e-3,   -3.1098246110e-3,    6.6664060580e-3,   -1.9826511850e-3,
@@ -5149,7 +5149,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(38, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(38, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -6.8096276370e-3,   -3.1368408820e-3,    6.6216918640e-3,   -1.9723719450e-3,
@@ -5208,7 +5208,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(38, JType::MultipleBand, &bands, 31);
+        let pm_output = design_filter(38, FilterType::MultipleBand, &bands, 31);
 
         let expected_impulse_response = vec![
             -6.8081570790e-3,   -3.1372685920e-3,    6.6267056390e-3,   -1.9656831860e-3,
@@ -5267,7 +5267,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(38, JType::MultipleBand, &bands, 32);
+        let pm_output = design_filter(38, FilterType::MultipleBand, &bands, 32);
 
         let expected_impulse_response = vec![
             -6.8058418110e-3,   -3.1393023670e-3,    6.6152093930e-3,   -1.9587883730e-3,
@@ -5326,7 +5326,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(95, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(95, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.9520822860e-5,    2.3667080030e-7,   -7.5317635490e-5,    2.1481959270e-4,
@@ -5400,7 +5400,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(95, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(95, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -2.9664293830e-5,   -3.8374687960e-7,   -7.5307456430e-5,    2.1541309250e-4,
@@ -5474,7 +5474,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(98, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(98, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             3.7872963730e-5,   -7.9897159590e-5,   -2.8738460970e-5,   -3.6309800630e-5,
@@ -5549,7 +5549,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(98, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(98, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             3.7625188270e-5,   -7.9702556830e-5,   -2.8217567890e-5,   -3.7250603780e-5,
@@ -5625,7 +5625,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.1280264520e-5,    5.3813237170e-6,    1.0350037880e-5,    3.3040532800e-6,
@@ -5707,7 +5707,7 @@ mod tests {
             weight: 3f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 17);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 17);
 
         let expected_impulse_response = vec![
             -1.1234141310e-5,    5.4508009270e-6,    1.0288878910e-5,    3.2620250750e-6,
@@ -5782,7 +5782,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(9, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(9, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             1.1682424690e-2,   -1.4297962190e-1,    1.7489455640e-1,   -2.3147127030e-1,
@@ -5828,7 +5828,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(9, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(9, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.1621468700e-2,   -1.4301973580e-1,    1.7492446300e-1,   -2.3141521220e-1,
@@ -5874,7 +5874,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(9, JType::MultipleBand, &bands, 34);
+        let pm_output = design_filter(9, FilterType::MultipleBand, &bands, 34);
 
         let expected_impulse_response = vec![
             1.1708342470e-2,   -1.4298257230e-1,    1.7485940460e-1,   -2.3147755860e-1,
@@ -5920,7 +5920,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(9, JType::MultipleBand, &bands, 35);
+        let pm_output = design_filter(9, FilterType::MultipleBand, &bands, 35);
 
         let expected_impulse_response = vec![
             1.1701596900e-2,   -1.4298683400e-1,    1.7486292120e-1,   -2.3147150870e-1,
@@ -5966,7 +5966,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(10, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(10, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             2.2558239100e-1,   -2.1365028620e-1,    2.2796037790e-1,   -1.7560601230e-1,
@@ -6012,7 +6012,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(10, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(10, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             2.2863647340e-1,   -2.1660661700e-1,    2.3109629750e-1,   -1.7797660830e-1,
@@ -6058,7 +6058,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(10, JType::MultipleBand, &bands, 34);
+        let pm_output = design_filter(10, FilterType::MultipleBand, &bands, 34);
 
         let expected_impulse_response = vec![
             2.3136226830e-1,   -2.1931596100e-1,    2.3391616340e-1,   -1.8008559940e-1,
@@ -6104,7 +6104,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(10, JType::MultipleBand, &bands, 35);
+        let pm_output = design_filter(10, FilterType::MultipleBand, &bands, 35);
 
         let expected_impulse_response = vec![
             2.3267714680e-1,   -2.2055725750e-1,    2.3524519800e-1,   -1.8110948800e-1,
@@ -6150,7 +6150,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.7613439260e-1,    1.1915747820e-1,   -1.4936113360e-1,    1.7100140450e-1,
@@ -6197,7 +6197,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.5233190360e-1,    1.0389186440e-1,   -1.3624292610e-1,    1.6400679950e-1,
@@ -6244,7 +6244,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 34);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 34);
 
         let expected_impulse_response = vec![
             -1.9716601070e-1,    1.3285900650e-1,   -1.6108924150e-1,    1.7732942100e-1,
@@ -6291,7 +6291,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 35);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 35);
 
         let expected_impulse_response = vec![
             -1.8361677230e-1,    1.2417693440e-1,   -1.5367421510e-1,    1.7335110900e-1,
@@ -6338,7 +6338,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(41, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(41, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             1.7766407690e-3,   -7.0793586780e-3,    5.8723590340e-3,   -4.0236408820e-3,
@@ -6392,7 +6392,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(41, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(41, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.7687934450e-3,   -7.0819593970e-3,    5.8801481500e-3,   -4.0319291870e-3,
@@ -6446,7 +6446,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(41, JType::MultipleBand, &bands, 34);
+        let pm_output = design_filter(41, FilterType::MultipleBand, &bands, 34);
 
         let expected_impulse_response = vec![
             1.7712987030e-3,   -7.0835691880e-3,    5.8771837500e-3,   -4.0313885550e-3,
@@ -6500,7 +6500,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(41, JType::MultipleBand, &bands, 35);
+        let pm_output = design_filter(41, FilterType::MultipleBand, &bands, 35);
 
         let expected_impulse_response = vec![
             1.7712883420e-3,   -7.0832683700e-3,    5.8761890980e-3,   -4.0302653800e-3,
@@ -6554,7 +6554,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(42, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(42, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             1.8928360940e-1,   -1.4494249220e-1,    1.3349333410e-1,   -7.6683938500e-2,
@@ -6608,7 +6608,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(42, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(42, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.8219369650e-1,   -1.4004945760e-1,    1.2913438680e-1,   -7.4437290430e-2,
@@ -6662,7 +6662,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(42, JType::MultipleBand, &bands, 34);
+        let pm_output = design_filter(42, FilterType::MultipleBand, &bands, 34);
 
         let expected_impulse_response = vec![
             2.0156918470e-1,   -1.5355195110e-1,    1.4093506340e-1,   -8.0526947980e-2,
@@ -6716,7 +6716,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(42, JType::MultipleBand, &bands, 35);
+        let pm_output = design_filter(42, FilterType::MultipleBand, &bands, 35);
 
         let expected_impulse_response = vec![
             2.2585810720e-1,   -1.7043720190e-1,    1.5581834320e-1,   -8.8215589520e-2,
@@ -6770,7 +6770,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(77, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(77, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.8132856350e-4,    7.7392796810e-6,    2.3316335860e-4,   -5.3586676950e-4,
@@ -6832,7 +6832,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(77, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(77, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.8205103700e-4,    8.2603346530e-6,    2.3302176850e-4,   -5.3663458680e-4,
@@ -6894,7 +6894,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(78, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(78, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             2.2772736850e-1,   -2.3223893340e-1,    1.9673305750e-1,   -4.2791008950e-2,
@@ -6956,7 +6956,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(78, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(78, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             1.8322560190e-1,   -1.8751889470e-1,    1.5999081730e-1,   -3.7318646910e-2,
@@ -7018,7 +7018,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -3.3191770320e-1,    5.1927131410e-1,   -5.2128803730e-1,    1.0198867320e-1,
@@ -7093,7 +7093,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.6572597030e-1,    4.1662013530e-1,   -4.1946554180e-1,    8.4764003750e-2,
@@ -7175,7 +7175,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(11, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.6046151300e-2,    3.7154424940e-2,   -4.9197159710e-2,    4.0683308240e-1,
@@ -7228,7 +7228,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(11, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.6042437180e-2,    3.7142094220e-2,   -4.9202147870e-2,    4.0684083100e-1,
@@ -7281,7 +7281,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::MultipleBand, &bands, 36);
+        let pm_output = design_filter(11, FilterType::MultipleBand, &bands, 36);
 
         let expected_impulse_response = vec![
             -2.6055775580e-2,    3.7186365570e-2,   -4.9184218050e-2,    4.0681287650e-1,
@@ -7334,7 +7334,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::MultipleBand, &bands, 37);
+        let pm_output = design_filter(11, FilterType::MultipleBand, &bands, 37);
 
         let expected_impulse_response = vec![
             -2.6054967190e-2,    3.7183687090e-2,   -4.9185309560e-2,    4.0681457520e-1,
@@ -7387,7 +7387,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(12, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.6326033470e-1,    4.3608725070e-2,   -2.8398296240e-1,    2.6139622930e-1,
@@ -7440,7 +7440,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(12, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -3.0497267840e-1,    3.7094950680e-2,   -3.2000121470e-1,    2.6505649090e-1,
@@ -7493,7 +7493,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::MultipleBand, &bands, 36);
+        let pm_output = design_filter(12, FilterType::MultipleBand, &bands, 36);
 
         let expected_impulse_response = vec![
             -3.3218932150e-1,    3.2383322720e-2,   -3.4386533500e-1,    2.6723337170e-1,
@@ -7546,7 +7546,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::MultipleBand, &bands, 37);
+        let pm_output = design_filter(12, FilterType::MultipleBand, &bands, 37);
 
         let expected_impulse_response = vec![
             -3.2448676230e-1,    3.3726304770e-2,   -3.3716833590e-1,    2.6664501430e-1,
@@ -7599,7 +7599,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.5341199930e-1,    1.9037455320e-2,   -2.4213476480e-1,    6.0381025080e-2,
@@ -7653,7 +7653,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.7485190930e-1,    1.6738787290e-2,   -2.5495487450e-1,    6.5705090760e-2,
@@ -7707,7 +7707,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 36);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 36);
 
         let expected_impulse_response = vec![
             -2.1414285900e-1,    1.3535514470e-2,   -2.8171765800e-1,    7.4112415310e-2,
@@ -7761,7 +7761,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::MultipleBand, &bands, 37);
+        let pm_output = design_filter(16, FilterType::MultipleBand, &bands, 37);
 
         let expected_impulse_response = vec![
             -2.2351484000e-1,    1.2732028960e-2,   -2.8832548860e-1,    7.5882017610e-2,
@@ -7815,7 +7815,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(47, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             2.4451230270e-5,   -5.3538070060e-3,    7.0190364490e-3,    1.0136167520e-2,
@@ -7877,7 +7877,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(47, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             2.2198970330e-5,   -5.3572631440e-3,    7.0450939240e-3,    1.0133954700e-2,
@@ -7939,7 +7939,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::MultipleBand, &bands, 36);
+        let pm_output = design_filter(47, FilterType::MultipleBand, &bands, 36);
 
         let expected_impulse_response = vec![
             8.4171979320e-6,   -5.3504640240e-3,    7.0263254460e-3,    1.0145148260e-2,
@@ -8001,7 +8001,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::MultipleBand, &bands, 37);
+        let pm_output = design_filter(47, FilterType::MultipleBand, &bands, 37);
 
         let expected_impulse_response = vec![
             1.0419848880e-5,   -5.3486265240e-3,    7.0315673950e-3,    1.0144844650e-2,
@@ -8063,7 +8063,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(48, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.3900672790e-1,   -7.9028904440e-3,   -1.8139892820e-1,    6.6845268010e-2,
@@ -8125,7 +8125,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(48, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.2569988670e-1,   -7.5398385520e-3,   -1.7167864740e-1,    6.4475119110e-2,
@@ -8187,7 +8187,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::MultipleBand, &bands, 36);
+        let pm_output = design_filter(48, FilterType::MultipleBand, &bands, 36);
 
         let expected_impulse_response = vec![
             -3.0207303170e-1,   -1.0563433170e-2,   -2.2694429760e-1,    7.7853918080e-2,
@@ -8249,7 +8249,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::MultipleBand, &bands, 37);
+        let pm_output = design_filter(48, FilterType::MultipleBand, &bands, 37);
 
         let expected_impulse_response = vec![
             -2.9231458900e-1,   -1.0113865140e-2,   -2.1993938090e-1,    7.6180100440e-2,
@@ -8311,7 +8311,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(81, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -9.3938491770e-5,    6.5128685670e-4,    6.5719475970e-5,    2.0225462500e-3,
@@ -8382,7 +8382,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(81, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -9.2299014800e-5,    6.5133016320e-4,    6.2498795160e-5,    2.0201888400e-3,
@@ -8453,7 +8453,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(82, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             2.8614863750e-1,    3.4041404720e-3,    1.6632524130e-1,   -7.9737603660e-2,
@@ -8524,7 +8524,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(82, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             2.9183444380e-1,    3.9253830910e-3,    1.6965040560e-1,   -8.0916106700e-2,
@@ -8595,7 +8595,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 15);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 15);
 
         let expected_impulse_response = vec![
             -4.3577432630e-1,    8.3935856820e-3,   -1.4122599360e-1,    1.8629151580e-1,
@@ -8677,7 +8677,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::MultipleBand, &bands, 16);
+        let pm_output = design_filter(128, FilterType::MultipleBand, &bands, 16);
 
         let expected_impulse_response = vec![
             -4.3641445040e-1,    8.4998905660e-3,   -1.4148098230e-1,    1.8627345560e-1,
@@ -8746,7 +8746,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             1.2830007080e-1,     0.0000000000e0,
@@ -8780,7 +8780,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             1.4963617920e-1,     0.0000000000e0,
@@ -8814,7 +8814,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             1.5017083290e-1,     0.0000000000e0,
@@ -8848,7 +8848,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             1.5053582190e-1,     0.0000000000e0,
@@ -8882,7 +8882,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             1.5503965320e-1,     0.0000000000e0,
@@ -8916,7 +8916,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -2.3522971200e-2,    2.0811291040e-1,
@@ -8950,7 +8950,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -2.1930694580e-2,    2.0794318620e-1,
@@ -8984,7 +8984,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.0865017550e-2,    2.0836640890e-1,
@@ -9018,7 +9018,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.0859435200e-2,    2.0836457610e-1,
@@ -9052,7 +9052,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -2.0828133450e-2,    2.0836557450e-1,
@@ -9086,7 +9086,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -2.0827421920e-2,    2.0836259420e-1,
@@ -9120,7 +9120,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             6.5518729390e-3,   -1.7719194290e-2,    3.4275103360e-2,   -6.5967135130e-2,
@@ -9156,7 +9156,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             3.5538535570e-2,   -5.7584494350e-2,    5.4814260450e-2,   -7.8577786680e-2,
@@ -9192,7 +9192,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             7.9357676210e-2,   -1.1315567050e-1,    6.9273643200e-2,   -8.6063466970e-2,
@@ -9228,7 +9228,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             8.0563113090e-2,   -1.1462855340e-1,    6.9540604950e-2,   -8.6071655150e-2,
@@ -9264,7 +9264,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             8.2461714740e-2,   -1.1710360650e-1,    7.0155858990e-2,   -8.6404532190e-2,
@@ -9300,7 +9300,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             8.2901775840e-2,   -1.1765115710e-1,    7.0320308210e-2,   -8.6509831250e-2,
@@ -9336,7 +9336,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -2.6719036980e-3,    4.0246699940e-3,   -4.5096068640e-3,    8.4876883770e-3,
@@ -9372,7 +9372,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -2.3337167220e-3,    4.1035078470e-3,   -4.8021022230e-3,    8.6178928610e-3,
@@ -9408,7 +9408,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.3322761990e-3,    4.1650142520e-3,   -4.6351738270e-3,    8.4210420030e-3,
@@ -9444,7 +9444,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.3362378120e-3,    4.1693425740e-3,   -4.6319663520e-3,    8.4167057650e-3,
@@ -9480,7 +9480,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -2.3314754940e-3,    4.1676256810e-3,   -4.6337908130e-3,    8.4185358140e-3,
@@ -9516,7 +9516,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -2.3318585010e-3,    4.1678091510e-3,   -4.6329833570e-3,    8.4179621190e-3,
@@ -9552,7 +9552,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.7198007550e-3,    2.3658780850e-3,   -1.9610309970e-3,    2.7671703140e-3,
@@ -9589,7 +9589,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.4829445860e-3,    2.3435410110e-3,   -2.0808158440e-3,    2.7776712090e-3,
@@ -9626,7 +9626,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.5309153820e-3,    2.4419734250e-3,   -2.0137743560e-3,    2.6988824830e-3,
@@ -9663,7 +9663,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.5278203650e-3,    2.4397606030e-3,   -2.0158723930e-3,    2.7029989290e-3,
@@ -9700,7 +9700,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.5281887030e-3,    2.4415974040e-3,   -2.0141983400e-3,    2.6997313830e-3,
@@ -9737,7 +9737,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.5281020900e-3,    2.4416274390e-3,   -2.0145839080e-3,    2.7000124100e-3,
@@ -9774,7 +9774,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             1.2864322400e-2,   -1.8106970940e-2,    1.0002977210e-2,   -7.7834427360e-3,
@@ -9818,7 +9818,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             2.2639248520e-2,   -2.8685279190e-2,    1.0387834160e-2,   -8.4364339710e-3,
@@ -9862,7 +9862,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             5.1063861700e-2,   -6.3241124150e-2,    1.9275132570e-2,   -1.2789063160e-2,
@@ -9906,7 +9906,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             6.9869861010e-2,   -8.5616104300e-2,    2.4293608960e-2,   -1.5036284920e-2,
@@ -9950,7 +9950,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             8.1952489910e-2,   -9.9996097390e-2,    2.7437612410e-2,   -1.6418181360e-2,
@@ -9994,7 +9994,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             7.2585925460e-2,   -8.8881954550e-2,    2.5001287460e-2,   -1.5354596080e-2,
@@ -10038,7 +10038,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -4.0149121200e-4,    5.0405156800e-4,   -2.3123521530e-4,    2.2859827730e-4,
@@ -10083,7 +10083,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -3.3905246530e-4,    4.3620925860e-4,   -1.8424802690e-4,    1.5653661100e-4,
@@ -10128,7 +10128,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -3.9166532220e-4,    5.0887651740e-4,   -2.0222045710e-4,    1.6453681750e-4,
@@ -10173,7 +10173,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -3.9077783000e-4,    5.0790153910e-4,   -2.0211632360e-4,    1.6467674870e-4,
@@ -10218,7 +10218,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -3.9124983600e-4,    5.0866807580e-4,   -2.0224752370e-4,    1.6466504890e-4,
@@ -10263,7 +10263,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -3.9121959710e-4,    5.0862046190e-4,   -2.0221396700e-4,    1.6465166120e-4,
@@ -10308,7 +10308,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.1761515400e-2,    1.5921104700e-2,   -6.9101760160e-3,    4.1372757410e-3,
@@ -10362,7 +10362,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -2.1384071560e-2,    2.6087190960e-2,   -7.2077363730e-3,    5.0335861740e-3,
@@ -10416,7 +10416,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -6.7338176070e-2,    8.1169933080e-2,   -2.0381845530e-2,    1.0975174610e-2,
@@ -10470,7 +10470,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -6.8560376760e-2,    8.2631506030e-2,   -2.0718932150e-2,    1.1142469940e-2,
@@ -10524,7 +10524,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             2.1677627230e-4,   -2.7002239950e-4,    1.0620077960e-4,   -9.6150288300e-5,
@@ -10578,7 +10578,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             2.1998726880e-4,   -2.7115351990e-4,    8.7336906290e-5,   -6.1103870390e-5,
@@ -10632,7 +10632,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             2.1714779720e-4,   -2.7087601480e-4,    8.6070023830e-5,   -5.9119443900e-5,
@@ -10686,7 +10686,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             2.1656911120e-4,   -2.7021823920e-4,    8.5973413660e-5,   -5.9114834580e-5,
@@ -10740,7 +10740,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.3384570780e-4,    1.6450791740e-4,   -5.6053067960e-5,    4.6555956940e-5,
@@ -10805,7 +10805,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.3669385230e-4,    1.6701171990e-4,   -4.9292346380e-5,    3.1809311620e-5,
@@ -10870,7 +10870,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.3524550010e-4,    1.6534118910e-4,   -4.6008652130e-5,    2.7858068280e-5,
@@ -10935,7 +10935,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.3501262580e-4,    1.6505343960e-4,   -4.5909757320e-5,    2.7781969040e-5,
@@ -11006,7 +11006,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             7.3218137030e-2,     0.0000000000e0,
@@ -11046,7 +11046,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             7.3218137030e-2,     0.0000000000e0,
@@ -11086,7 +11086,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             7.2755061090e-2,     0.0000000000e0,
@@ -11126,7 +11126,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             7.2729706760e-2,     0.0000000000e0,
@@ -11166,7 +11166,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             7.2703547780e-2,     0.0000000000e0,
@@ -11206,7 +11206,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             7.2700537740e-2,     0.0000000000e0,
@@ -11246,7 +11246,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             5.4617356510e-2,    1.6835704450e-3,
@@ -11286,7 +11286,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             5.4617356510e-2,    1.6835704450e-3,
@@ -11326,7 +11326,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             5.4617356510e-2,    1.6835704450e-3,
@@ -11366,7 +11366,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             5.4617356510e-2,    1.6835704450e-3,
@@ -11406,7 +11406,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             5.4617356510e-2,    1.6835704450e-3,
@@ -11446,7 +11446,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             5.4617356510e-2,    1.6835704450e-3,
@@ -11486,7 +11486,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.2871638870e-2,    1.0790772740e-2,    1.1589542030e-2,    2.4629242720e-2,
@@ -11528,7 +11528,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.1146811770e-2,    7.1909027170e-3,    1.6088150440e-2,    2.1278087050e-2,
@@ -11570,7 +11570,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -9.1291666030e-3,    1.5109289670e-3,    2.0531717690e-2,    1.9140319900e-2,
@@ -11612,7 +11612,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -9.1284401710e-3,    1.5254402530e-3,    2.0504768940e-2,    1.9144531340e-2,
@@ -11654,7 +11654,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -9.0701393780e-3,    1.4136815440e-3,    2.0594067870e-2,    1.9109249110e-2,
@@ -11696,7 +11696,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -9.0605141600e-3,    1.3903932410e-3,    2.0611181860e-2,    1.9106771800e-2,
@@ -11738,7 +11738,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -8.7079685180e-3,    1.1058207600e-3,    1.0644664060e-2,    1.9422199580e-2,
@@ -11780,7 +11780,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -4.8890295440e-3,   -6.6093639470e-3,    1.4909936120e-2,    1.8018078060e-2,
@@ -11822,7 +11822,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.8328415940e-3,   -9.5318071540e-3,    1.4959503900e-2,    1.9381238150e-2,
@@ -11864,7 +11864,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -2.8204461560e-3,   -9.5489565280e-3,    1.4952288940e-2,    1.9402571020e-2,
@@ -11906,7 +11906,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -2.8030222750e-3,   -9.5616094770e-3,    1.4949640260e-2,    1.9398109990e-2,
@@ -11948,7 +11948,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -2.8015940920e-3,   -9.5635568720e-3,    1.4949146660e-2,    1.9399059940e-2,
@@ -11990,7 +11990,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             3.9568273350e-3,   -5.8662290680e-3,   -5.5477153510e-3,   -6.5453024580e-4,
@@ -12033,7 +12033,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             3.9711007850e-3,   -5.5465977640e-3,   -5.9567363930e-3,   -6.4344285060e-4,
@@ -12076,7 +12076,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             4.1756555440e-3,   -5.6630545300e-3,   -5.9292213990e-3,   -8.0055976290e-4,
@@ -12119,7 +12119,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             4.1769058440e-3,   -5.6633539500e-3,   -5.9263650330e-3,   -8.0783059820e-4,
@@ -12162,7 +12162,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             4.1780886240e-3,   -5.6623909620e-3,   -5.9287217450e-3,   -8.0700404940e-4,
@@ -12205,7 +12205,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             4.1776238940e-3,   -5.6607648730e-3,   -5.9308032510e-3,   -8.0699007960e-4,
@@ -12248,7 +12248,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             3.3780422650e-6,    3.7776429960e-5,    9.0408957480e-6,   -7.7828895880e-5,
@@ -12298,7 +12298,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             3.8638017940e-6,    4.1283110480e-5,    6.4404648580e-6,   -8.6618580100e-5,
@@ -12348,7 +12348,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -9.8024966060e-6,    5.3300449510e-5,    3.5062857930e-5,   -6.7469882200e-5,
@@ -12398,7 +12398,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.0020128680e-5,    5.3373125410e-5,    3.5544755520e-5,   -6.6968830650e-5,
@@ -12448,7 +12448,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.0021499290e-5,    5.3422845670e-5,    3.5484223190e-5,   -6.7103967010e-5,
@@ -12498,7 +12498,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.0003680470e-5,    5.3440406190e-5,    3.5435114110e-5,   -6.7189357650e-5,
@@ -12548,7 +12548,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -4.7372924430e-7,    2.7429397960e-5,    2.1437670510e-5,   -4.2706044040e-5,
@@ -12599,7 +12599,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.2381036870e-5,    3.4363823940e-5,    4.6917502910e-5,   -1.6924099330e-5,
@@ -12650,7 +12650,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.9411403630e-5,    3.8529124140e-5,    5.9359579610e-5,   -4.8269357650e-6,
@@ -12701,7 +12701,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.9597717260e-5,    3.8517915530e-5,    5.9758349380e-5,   -4.2819519880e-6,
@@ -12752,7 +12752,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.9607539800e-5,    3.8557838710e-5,    5.9741738370e-5,   -4.3236141210e-6,
@@ -12803,7 +12803,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.9583525500e-5,    3.8576145020e-5,    5.9685986340e-5,   -4.4339612940e-6,
@@ -12854,7 +12854,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.3977419220e-8,   -1.5797246530e-7,   -1.8694585440e-7,    3.4349599790e-7,
@@ -12915,7 +12915,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -3.0404567750e-8,   -2.7876092190e-7,   -2.6505875890e-7,    5.9299549090e-7,
@@ -12976,7 +12976,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.1582053360e-7,   -1.7000526500e-7,   -3.0099194250e-8,    4.4776754750e-7,
@@ -13037,7 +13037,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.9891747630e-7,   -3.6506995120e-7,    8.2796269400e-8,    1.4761961890e-6,
@@ -13097,7 +13097,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             6.0845593450e-8,   -6.8900341430e-8,   -3.8228799330e-7,   -3.4852246240e-7,
@@ -13158,7 +13158,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             4.9786962110e-8,   -1.5759169970e-7,   -4.5078144240e-7,   -1.4910955310e-7,
@@ -13219,7 +13219,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             2.8446385160e-7,    6.3681682150e-8,   -1.0551857490e-6,   -1.5357045410e-6,
@@ -13280,7 +13280,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.7106265200e-7,   -4.8710069220e-7,   -3.1194576880e-7,    1.0895910240e-6,
@@ -13340,7 +13340,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -3.1513954470e-7,   -3.2277776540e-7,    3.6025380720e-7,    2.6645318480e-6,
@@ -13411,7 +13411,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -2.0711274830e-7,   -1.9783118430e-7,    2.5412657580e-7,    1.5619959870e-6,
@@ -13483,7 +13483,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -2.1510792070e-5,    1.3608901100e-5,    1.9305622120e-5,    1.0594510970e-5,
@@ -13555,7 +13555,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             3.2223226930e2,    -2.8080657960e2,    -3.0254644780e2,    -5.7499633790e1,
@@ -13633,7 +13633,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             1.1342786250e-1,     0.0000000000e0,
@@ -13680,7 +13680,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             1.1342786250e-1,     0.0000000000e0,
@@ -13727,7 +13727,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             1.1342786250e-1,     0.0000000000e0,
@@ -13774,7 +13774,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             1.1342786250e-1,     0.0000000000e0,
@@ -13821,7 +13821,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             1.1342786250e-1,     0.0000000000e0,
@@ -13868,7 +13868,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(3, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             1.1342786250e-1,     0.0000000000e0,
@@ -13915,7 +13915,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             2.9650272800e-2,    1.2075543400e-1,
@@ -13962,7 +13962,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             3.4772951160e-2,    1.1779715120e-1,
@@ -14009,7 +14009,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             3.4772951160e-2,    1.1779715120e-1,
@@ -14056,7 +14056,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             3.4772951160e-2,    1.1779715120e-1,
@@ -14103,7 +14103,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             3.4772951160e-2,    1.1779715120e-1,
@@ -14150,7 +14150,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(4, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             3.4772951160e-2,    1.1779715120e-1,
@@ -14197,7 +14197,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -2.8055142610e-3,    4.6177979560e-2,   -4.1350275280e-2,   -9.5180831850e-3,
@@ -14246,7 +14246,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             1.3242266140e-4,    4.6806637200e-2,   -3.9494015280e-2,   -1.0722141710e-2,
@@ -14295,7 +14295,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -7.5297494190e-4,    4.6298243110e-2,   -3.8997214290e-2,   -9.9977776410e-3,
@@ -14344,7 +14344,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -8.5504894380e-4,    4.6251747760e-2,   -3.8965813820e-2,   -9.9183507260e-3,
@@ -14393,7 +14393,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -8.2321849190e-4,    4.6256184580e-2,   -3.8961861280e-2,   -9.9449791010e-3,
@@ -14442,7 +14442,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(11, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -8.3988648840e-4,    4.6247135850e-2,   -3.8953162730e-2,   -9.9312104280e-3,
@@ -14491,7 +14491,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.6991384330e-2,    1.1662342590e-2,   -5.8356644590e-3,   -8.4946379070e-2,
@@ -14540,7 +14540,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.6582900660e-2,    1.0167076250e-2,   -4.7325314950e-3,   -8.2258455460e-2,
@@ -14589,7 +14589,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.6558373350e-2,    1.0061170910e-2,   -4.6699522060e-3,   -8.2170121370e-2,
@@ -14638,7 +14638,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.6565104950e-2,    1.0095829140e-2,   -4.6864929610e-3,   -8.2182742660e-2,
@@ -14687,7 +14687,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.6555609180e-2,    1.0052833710e-2,   -4.6626250260e-3,   -8.2155376670e-2,
@@ -14736,7 +14736,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(12, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.6556860880e-2,    1.0060496630e-2,   -4.6656797640e-3,   -8.2157731060e-2,
@@ -14785,7 +14785,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             2.6949010790e-3,    2.1713169290e-2,   -8.4248632190e-3,    3.5744622350e-2,
@@ -14835,7 +14835,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             3.8004643280e-3,    2.1169977260e-2,   -7.8948438170e-3,    3.5158112650e-2,
@@ -14885,7 +14885,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             3.4357719120e-3,    2.0919337870e-2,   -8.1226062030e-3,    3.5105980930e-2,
@@ -14935,7 +14935,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             3.4429607910e-3,    2.0923987030e-2,   -8.1201251600e-3,    3.5093143580e-2,
@@ -14985,7 +14985,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             3.4399917350e-3,    2.0924989130e-2,   -8.1195421520e-3,    3.5086318850e-2,
@@ -15035,7 +15035,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(16, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             3.4442855980e-3,    2.0925818010e-2,   -8.1168450420e-3,    3.5083442930e-2,
@@ -15085,7 +15085,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.1725790100e-3,   -1.1696979640e-3,    2.0652972160e-3,   -1.6750779470e-4,
@@ -15142,7 +15142,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.2006278850e-3,   -1.4402503150e-3,    2.0281341860e-3,   -3.0295050240e-4,
@@ -15199,7 +15199,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.1054897910e-3,   -1.5009421620e-3,    1.9959085620e-3,   -2.9849458950e-4,
@@ -15256,7 +15256,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.1104131120e-3,   -1.4985630990e-3,    1.9990752920e-3,   -2.9945618010e-4,
@@ -15313,7 +15313,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.1098011160e-3,   -1.5008666090e-3,    1.9984454850e-3,   -2.9793567960e-4,
@@ -15370,7 +15370,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(47, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.1104266160e-3,   -1.5011280780e-3,    1.9991216250e-3,   -2.9691844250e-4,
@@ -15427,7 +15427,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -9.7024225400e-5,   -1.5954010890e-3,    1.0002888740e-3,    8.8704976950e-4,
@@ -15485,7 +15485,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             4.8192861870e-5,   -1.6859207540e-3,    9.0922234810e-4,    7.7887979570e-4,
@@ -15543,7 +15543,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             4.6175727040e-4,   -1.6160226660e-3,    7.9022371210e-4,    8.6944841310e-4,
@@ -15601,7 +15601,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             4.6096683950e-4,   -1.6202525000e-3,    7.8457756900e-4,    8.6958974130e-4,
@@ -15659,7 +15659,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 36);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 36);
 
         let expected_impulse_response = vec![
             4.6037687570e-4,   -1.6195403880e-3,    7.8693625980e-4,    8.6759979600e-4,
@@ -15717,7 +15717,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Differentiator, &bands, 37);
+        let pm_output = design_filter(48, FilterType::Differentiator, &bands, 37);
 
         let expected_impulse_response = vec![
             4.5984305320e-4,   -1.6206983710e-3,    7.8636209950e-4,    8.6714664940e-4,
@@ -15775,7 +15775,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             -2.5954053850e-5,   -6.3178456910e-5,    5.9250847700e-5,   -2.3018037610e-5,
@@ -15842,7 +15842,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             -5.2403527660e-5,   -1.0170966560e-4,    1.2161411000e-4,   -5.6596763900e-6,
@@ -15909,7 +15909,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             -4.4423530200e-5,   -1.2492266250e-4,    1.1277553860e-4,   -9.5496798170e-6,
@@ -15976,7 +15976,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(81, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             -4.4184114810e-5,   -1.2486455670e-4,    1.1236281720e-4,   -9.5649302240e-6,
@@ -16043,7 +16043,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             1.3303425480e-5,   -1.2472487290e-4,    2.2941530910e-5,    1.3873854190e-4,
@@ -16110,7 +16110,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             3.2057607310e-5,   -1.4966183520e-4,   -2.2350359360e-6,    1.2872007210e-4,
@@ -16177,7 +16177,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             4.6632056180e-5,   -1.4977518000e-4,   -1.8315564380e-5,    1.0414874120e-4,
@@ -16244,7 +16244,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(82, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             4.6503242630e-5,   -1.4996327810e-4,   -1.8060251020e-5,    1.0430192920e-4,
@@ -16311,7 +16311,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 2);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 2);
 
         let expected_impulse_response = vec![
             1.2790744680e-6,   -2.7626231260e-7,   -1.5970967980e-6,    2.8764920900e-6,
@@ -16389,7 +16389,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 3);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 3);
 
         let expected_impulse_response = vec![
             1.5916236860e-6,    1.1810902830e-7,   -1.6055358860e-6,    3.9779852160e-6,
@@ -16468,7 +16468,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 15);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 15);
 
         let expected_impulse_response = vec![
             2.0029322060e-6,    4.8407650870e-7,   -2.2919389270e-6,    4.8072006390e-6,
@@ -16547,7 +16547,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Differentiator, &bands, 16);
+        let pm_output = design_filter(128, FilterType::Differentiator, &bands, 16);
 
         let expected_impulse_response = vec![
             2.0054289960e-6,    4.8159063230e-7,   -2.3060733840e-6,    4.8059728210e-6,
@@ -16612,7 +16612,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             5.7735025880e-1,     0.0000000000e0,
@@ -16646,7 +16646,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             8.3164674040e-1,     0.0000000000e0,
@@ -16680,7 +16680,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             8.3675682540e-1,     0.0000000000e0,
@@ -16714,7 +16714,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             9.1983139510e-1,     0.0000000000e0,
@@ -16748,7 +16748,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             9.2259019610e-1,     0.0000000000e0,
@@ -16782,7 +16782,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.9891238210e-1,    6.1991435290e-1,
@@ -16816,7 +16816,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             2.7480390670e-1,    6.3293528560e-1,
@@ -16850,7 +16850,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             5.2948409320e-1,    6.4612942930e-1,
@@ -16884,7 +16884,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             5.3596317770e-1,    6.4631867410e-1,
@@ -16918,7 +16918,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             5.9519350530e-1,    6.4826273920e-1,
@@ -16952,7 +16952,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             5.9652704000e-1,    6.4824801680e-1,
@@ -16986,7 +16986,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.0916339610e-1,   -7.6799002710e-9,    1.8790662290e-1,    7.4643180530e-9,
@@ -17022,7 +17022,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.7559368910e-1,   -6.0996363520e-8,    1.9724638760e-1,    1.5754384460e-8,
@@ -17058,7 +17058,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.3815743920e-1,    1.1067613310e-7,    2.2273236510e-1,    6.4361096010e-8,
@@ -17094,7 +17094,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.4534718990e-1,   -8.3883463730e-8,    2.2272896770e-1,    5.5205951810e-8,
@@ -17130,7 +17130,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             5.1703411340e-1,   -4.9542880020e-8,    2.2564560170e-1,    1.2712546040e-7,
@@ -17166,7 +17166,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             5.1893544200e-1,    1.2617556420e-7,    2.2582715750e-1,    7.8670254310e-8,
@@ -17202,7 +17202,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             8.9716330170e-2,    5.9545964000e-2,    7.7454447750e-2,    1.1655704680e-1,
@@ -17238,7 +17238,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.4899484810e-1,    7.2529882190e-2,    8.6670055990e-2,    1.2721651790e-1,
@@ -17274,7 +17274,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.0253674980e-1,    7.9136461020e-2,    9.5899254080e-2,    1.3081890340e-1,
@@ -17310,7 +17310,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.0918114780e-1,    7.8522384170e-2,    9.6296519040e-2,    1.3132214550e-1,
@@ -17346,7 +17346,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             4.7491100430e-1,    8.0442994830e-2,    9.7735881810e-2,    1.3186383250e-1,
@@ -17382,7 +17382,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             4.7650849820e-1,    8.0546319480e-2,    9.7820520400e-2,    1.3185328250e-1,
@@ -17418,7 +17418,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             8.0567307770e-2,    4.3119259180e-2,    4.7118321060e-2,    6.0222670440e-2,
@@ -17455,7 +17455,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.3639324900e-1,    4.8712655900e-2,    5.3531497720e-2,    7.2740837930e-2,
@@ -17492,7 +17492,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             3.8976261020e-1,    5.5416017770e-2,    6.2209367750e-2,    7.4133276940e-2,
@@ -17529,7 +17529,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             3.9673832060e-1,    5.5804848670e-2,    6.2963694330e-2,    7.4438214300e-2,
@@ -17566,7 +17566,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             4.6358865500e-1,    5.6776702400e-2,    6.3965380190e-2,    7.5501620770e-2,
@@ -17603,7 +17603,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             4.6512380240e-1,    5.6754082440e-2,    6.4000308510e-2,    7.5455129150e-2,
@@ -17640,7 +17640,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             6.3395671550e-2,    1.0012001890e-6,    2.6511177420e-2,   -3.1720219340e-8,
@@ -17684,7 +17684,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.2683261930e-1,   -2.1486280840e-7,    2.1344587210e-2,    1.8793056710e-7,
@@ -17728,7 +17728,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             3.7344983220e-1,    1.8318286270e-7,    3.4382343290e-2,    3.2869650110e-7,
@@ -17772,7 +17772,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             3.8051763180e-1,    2.2099106540e-8,    3.5133391620e-2,    1.5371351480e-7,
@@ -17816,7 +17816,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             4.5014631750e-1,    4.1960109340e-7,    3.5819441080e-2,    1.9342706990e-8,
@@ -17860,7 +17860,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             4.5187079910e-1,    4.3266794590e-7,    3.5801410680e-2,    1.1915340110e-6,
@@ -17904,7 +17904,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             6.3660763200e-2,    1.7099395390e-2,    9.6304416660e-3,    1.0411277410e-2,
@@ -17949,7 +17949,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.1539263280e-1,    1.0872013870e-2,    1.0981559750e-2,    1.8044695260e-2,
@@ -17994,7 +17994,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             3.6702317000e-1,    1.6401022670e-2,    1.6866207120e-2,    1.7492979760e-2,
@@ -18039,7 +18039,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             3.7432870270e-1,    1.6783803700e-2,    1.7212271690e-2,    1.7723500730e-2,
@@ -18084,7 +18084,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             4.4251361490e-1,    1.7065823080e-2,    1.7511695620e-2,    1.8029093740e-2,
@@ -18129,7 +18129,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             4.4414520260e-1,    1.7079293730e-2,    1.7513632770e-2,    1.8029332160e-2,
@@ -18174,7 +18174,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             4.5916454840e-5,    6.5278694030e-2,   -2.5428720620e-5,    2.0330533390e-2,
@@ -18228,7 +18228,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.1651518430e-4,    1.1729557070e-1,   -1.1390725560e-4,    1.3864241540e-2,
@@ -18282,7 +18282,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             1.8447291800e-3,    3.6917933820e-1,   -1.7381771470e-3,    1.9923329350e-2,
@@ -18336,7 +18336,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             1.5095686540e-2,    3.7563890220e-1,   -1.4260130000e-2,    2.0715206860e-2,
@@ -18390,7 +18390,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             6.0107924040e-2,    1.0152831670e-2,    2.8129592540e-3,    5.4209083320e-3,
@@ -18444,7 +18444,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.1174333840e-1,    5.3022503850e-3,    5.3161382680e-3,    1.1402361090e-2,
@@ -18498,7 +18498,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             3.6254966260e-1,    9.5179677010e-3,    9.6667110920e-3,    9.8333954810e-3,
@@ -18552,7 +18552,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             3.6993753910e-1,    9.5055103300e-3,    9.6253156660e-3,    9.8092854020e-3,
@@ -18606,7 +18606,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             5.8194641020e-2,    6.5329335630e-3,   -3.1796842810e-4,    3.3583119510e-3,
@@ -18671,7 +18671,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.1001493780e-1,    2.9294937850e-3,    2.9311478140e-3,    8.5781812670e-3,
@@ -18736,7 +18736,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             3.6031413080e-1,    6.1427950860e-3,    6.1936378480e-3,    6.2527954580e-3,
@@ -18801,7 +18801,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             3.6773476000e-1,    5.9408545490e-3,    6.0067772870e-3,    6.0697197910e-3,
@@ -18872,7 +18872,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             3.2491970060e-1,     0.0000000000e0,
@@ -18912,7 +18912,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             3.2491970060e-1,     0.0000000000e0,
@@ -18952,7 +18952,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.1582340000e-1,     0.0000000000e0,
@@ -18992,7 +18992,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.1946035620e-1,     0.0000000000e0,
@@ -19032,7 +19032,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             4.6017354730e-1,     0.0000000000e0,
@@ -19072,7 +19072,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             4.6104982500e-1,     0.0000000000e0,
@@ -19112,7 +19112,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             2.7968627210e-1,    8.6213052270e-3,
@@ -19152,7 +19152,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             2.7968627210e-1,    8.6213052270e-3,
@@ -19192,7 +19192,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.4356808070e-1,    1.3672947880e-2,
@@ -19232,7 +19232,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.4746017460e-1,    1.3792902230e-2,
@@ -19272,7 +19272,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             4.8297488690e-1,    1.4887660740e-2,
@@ -19312,7 +19312,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             4.8380830880e-1,    1.4913380150e-2,
@@ -19352,7 +19352,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             6.5579704940e-2,    1.2447761740e-1,    1.9722500440e-1,    1.8593418600e-1,
@@ -19394,7 +19394,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.1826926470e-1,    1.6338232160e-1,    2.0857614280e-1,    1.9411462550e-1,
@@ -19436,7 +19436,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.7961896660e-1,    2.4701356890e-1,    1.4495068790e-1,    1.9099980590e-2,
@@ -19478,7 +19478,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.8893797400e-1,    2.4941068890e-1,    1.4478868250e-1,    1.4573514460e-2,
@@ -19520,7 +19520,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             5.8456736800e-1,    2.7536359430e-1,    1.3572871690e-1,   -2.4208098650e-2,
@@ -19562,7 +19562,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             5.8696877960e-1,    2.7601659300e-1,    1.3514864440e-1,   -2.5365620850e-2,
@@ -19604,7 +19604,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             5.2461303770e-2,    1.1366332320e-1,    1.7478089030e-1,    2.0129993560e-1,
@@ -19646,7 +19646,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.5224774180e-1,    1.1281500760e-1,    1.4860552550e-1,    1.6940003630e-1,
@@ -19688,7 +19688,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.5847454670e-1,    1.9827559590e-1,    1.5342706440e-1,    8.1408679490e-2,
@@ -19730,7 +19730,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.6760317680e-1,    1.9982251520e-1,    1.5326964860e-1,    7.9199135300e-2,
@@ -19772,7 +19772,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             5.5126535890e-1,    2.2003805640e-1,    1.5223664050e-1,    5.6257247920e-2,
@@ -19814,7 +19814,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             5.5322211980e-1,    2.2040301560e-1,    1.5205842260e-1,    5.5696845050e-2,
@@ -19856,7 +19856,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             8.0360263590e-2,    1.1984303590e-2,    2.9905244710e-2,    7.6090022920e-2,
@@ -19899,7 +19899,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.3390058280e-1,    3.4993618730e-2,    3.6687225100e-2,    7.3500871660e-2,
@@ -19942,7 +19942,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             4.2736727000e-1,    8.8921904560e-2,    4.9904584880e-3,   -9.9155902860e-3,
@@ -19985,7 +19985,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             4.3590971830e-1,    9.1254681350e-2,    3.8120746610e-3,   -1.2384057040e-2,
@@ -20028,7 +20028,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             5.1450759170e-1,    1.0462325810e-1,   -5.0584673880e-3,   -3.6084353920e-2,
@@ -20071,7 +20071,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             5.1650327440e-1,    1.0498332980e-1,   -5.3398013110e-3,   -3.6635398860e-2,
@@ -20114,7 +20114,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.4807622130e-1,    2.3760373890e-1,    1.3555328550e-1,   -2.5060144070e-1,
@@ -20164,7 +20164,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             3.0028298500e-1,    4.3983936310e-1,    1.9304981830e-1,   -5.4296791550e-1,
@@ -20214,7 +20214,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             8.8380569220e-1,     1.0206860300e0,    2.2673147920e-1,    -1.5110795500e0,
@@ -20264,7 +20264,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             9.0260970590e-1,     1.0403857230e0,    2.2885894780e-1,    -1.5435528760e0,
@@ -20314,7 +20314,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             1.0888264180e0,     1.2465780970e0,    2.6062440870e-1,    -1.8738813400e0,
@@ -20364,7 +20364,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             1.0930318830e0,     1.2505500320e0,    2.6117587090e-1,    -1.8803453450e0,
@@ -20414,7 +20414,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.5183085200e-1,    2.6549273730e-1,    1.7645138500e-1,   -2.2566068170e-1,
@@ -20465,7 +20465,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             2.6712989810e-1,    3.3368164300e-1,    1.1523860690e-1,   -4.0328830480e-1,
@@ -20516,7 +20516,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             8.5338371990e-1,    9.1915446520e-1,    1.2674307820e-1,    -1.4230029580e0,
@@ -20567,7 +20567,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             8.7121266130e-1,    9.3619972470e-1,    1.2678802010e-1,    -1.4548695090e0,
@@ -20618,7 +20618,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             1.0459802150e0,     1.1168603900e0,    1.3796401020e-1,    -1.7583754060e0,
@@ -20669,7 +20669,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             1.0503340960e0,     1.1217209100e0,    1.3851046560e-1,    -1.7663915160e0,
@@ -20720,7 +20720,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             5.3812038900e-1,     1.7131571770e0,     2.0364384650e0,    -1.4967352150e0,
@@ -20780,7 +20780,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             8.4406143430e-1,     2.2407298090e0,     2.0627751350e0,    -2.7689542770e0,
@@ -20840,7 +20840,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             2.0521576400e0,     4.3678870200e0,     2.7348687650e0,    -6.8547601700e0,
@@ -20900,7 +20900,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             2.1005620960e0,     4.4707083700e0,     2.8001027110e0,    -7.0152263640e0,
@@ -20960,7 +20960,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             4.1855442520e-1,     1.1507024770e0,     1.1840397120e0,    -1.1179261210e0,
@@ -21020,7 +21020,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             6.7489093540e-1,     1.6062247750e0,     1.2842133050e0,    -2.0696079730e0,
@@ -21080,7 +21080,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             1.9782936570e0,     4.0621500020e0,     2.2846693990e0,    -6.7269554140e0,
@@ -21140,7 +21140,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             2.0226039890e0,     4.1507129670e0,     2.3266849520e0,    -6.8909912110e0,
@@ -21200,7 +21200,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             4.6315330270e-1,     1.2053865430e1,     2.1203479770e1,     1.0022430420e0,
@@ -21271,7 +21271,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.8777949810e0,     1.3369090080e1,     2.0522821430e1,    -6.2504768370e0,
@@ -21342,7 +21342,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             6.5043425560e0,     2.6569074630e1,     3.4865982060e1,    -2.5386058810e1,
@@ -21413,7 +21413,7 @@ mod tests {
             weight: 1f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             6.7471976280e0,     2.7314832690e1,     3.5928295140e1,    -2.6039844510e1,
@@ -21491,7 +21491,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.9019217790e-1,     0.0000000000e0,
@@ -21538,7 +21538,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             1.9019217790e-1,     0.0000000000e0,
@@ -21585,7 +21585,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             1.9019217790e-1,     0.0000000000e0,
@@ -21632,7 +21632,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             1.9019217790e-1,     0.0000000000e0,
@@ -21679,7 +21679,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             1.9019217790e-1,     0.0000000000e0,
@@ -21726,7 +21726,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(3, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(3, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             1.9019217790e-1,     0.0000000000e0,
@@ -21773,7 +21773,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             5.1640961320e-2,    2.1031600240e-1,
@@ -21820,7 +21820,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             5.9558212760e-2,    2.0175990460e-1,
@@ -21867,7 +21867,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             5.9558212760e-2,    2.0175990460e-1,
@@ -21914,7 +21914,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             5.9558212760e-2,    2.0175990460e-1,
@@ -21961,7 +21961,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             5.9558212760e-2,    2.0175990460e-1,
@@ -22008,7 +22008,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(4, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(4, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             5.9558212760e-2,    2.0175990460e-1,
@@ -22055,7 +22055,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             8.5080064830e-2,    1.2181410190e-1,   -2.0892080660e-1,   -9.7210831940e-2,
@@ -22104,7 +22104,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             7.9987883570e-2,    1.0919684920e-1,   -2.1337063610e-1,   -7.2943598030e-2,
@@ -22153,7 +22153,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             7.6160520320e-2,    1.0844547300e-1,   -2.0751068000e-1,   -7.4056133630e-2,
@@ -22202,7 +22202,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             7.6207578180e-2,    1.0848072170e-1,   -2.0745301250e-1,   -7.4271380900e-2,
@@ -22251,7 +22251,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             7.6126784090e-2,    1.0835477710e-1,   -2.0744411650e-1,   -7.4067316950e-2,
@@ -22300,7 +22300,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(11, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(11, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             7.6132349670e-2,    1.0840066520e-1,   -2.0738163590e-1,   -7.4088901280e-2,
@@ -22349,7 +22349,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.0148525470e-3,    1.3810154800e-1,   -4.2693674560e-2,   -2.3439928890e-1,
@@ -22398,7 +22398,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.7492720870e-5,    1.2838177380e-1,   -4.4858485460e-2,   -2.3999787870e-1,
@@ -22447,7 +22447,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             6.5283727600e-4,    1.3068677480e-1,   -4.2927540840e-2,   -2.3614099620e-1,
@@ -22496,7 +22496,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             6.5795029510e-4,    1.3095131520e-1,   -4.2923688890e-2,   -2.3597502710e-1,
@@ -22545,7 +22545,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             6.4578512680e-4,    1.3075524570e-1,   -4.2935281990e-2,   -2.3601388930e-1,
@@ -22594,7 +22594,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(12, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(12, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             6.6309620160e-4,    1.3078762590e-1,   -4.2894743380e-2,   -2.3600286250e-1,
@@ -22643,7 +22643,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             -2.7958168650e-3,    8.1366524100e-3,    1.2464383620e-3,    1.4397120480e-1,
@@ -22693,7 +22693,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.5485560290e-3,    5.9543275270e-3,    7.9025141890e-4,    1.4213883880e-1,
@@ -22743,7 +22743,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.7096669180e-3,    6.8232025950e-3,    8.4979133680e-4,    1.4120654760e-1,
@@ -22793,7 +22793,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.7274932470e-3,    6.8330420180e-3,    8.4711704400e-4,    1.4121329780e-1,
@@ -22843,7 +22843,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.7458240040e-3,    6.7760339010e-3,    8.1680994480e-4,    1.4120420810e-1,
@@ -22893,7 +22893,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(16, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(16, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.7433619360e-3,    6.7734932530e-3,    8.1907538700e-4,    1.4121051130e-1,
@@ -22943,7 +22943,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             -4.2875455690e-3,   -1.3024343930e-4,    7.4382349850e-3,   -1.8478679700e-3,
@@ -23000,7 +23000,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             -4.1174893270e-3,   -1.1414060140e-3,    6.4768819140e-3,   -1.3407034570e-3,
@@ -23057,7 +23057,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             -3.7357213440e-3,   -1.8072654490e-3,    5.7804938410e-3,   -7.1770721120e-4,
@@ -23114,7 +23114,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             -3.7216637280e-3,   -1.8269321880e-3,    5.7640424930e-3,   -7.0123188200e-4,
@@ -23171,7 +23171,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             -3.7242469840e-3,   -1.8222854710e-3,    5.7667233050e-3,   -7.0212257560e-4,
@@ -23228,7 +23228,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(47, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(47, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             -3.7257049700e-3,   -1.8205387750e-3,    5.7660043240e-3,   -7.0362456610e-4,
@@ -23285,7 +23285,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             -1.1134617960e-3,   -4.0120380000e-3,    3.6471756180e-3,    3.0782162210e-3,
@@ -23343,7 +23343,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.4412783780e-3,   -4.4335536660e-3,    3.7075176370e-3,    2.9828562400e-3,
@@ -23401,7 +23401,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.0702564610e-3,   -4.8450222240e-3,    3.2488510480e-3,    3.3094743270e-3,
@@ -23459,7 +23459,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.0563245740e-3,   -4.8448089510e-3,    3.2266259660e-3,    3.3155628480e-3,
@@ -23517,7 +23517,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 36);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 36);
 
         let expected_impulse_response = vec![
             -1.0590815220e-3,   -4.8496099190e-3,    3.2301109750e-3,    3.3144031190e-3,
@@ -23575,7 +23575,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(48, JType::Hilbert, &bands, 37);
+        let pm_output = design_filter(48, FilterType::HilbertTransform, &bands, 37);
 
         let expected_impulse_response = vec![
             -1.0592138860e-3,   -4.8491684720e-3,    3.2311920080e-3,    3.3136599230e-3,
@@ -23633,7 +23633,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.0597098480e-5,   -8.4706101920e-5,   -9.1991511000e-5,   -2.0441012750e-4,
@@ -23700,7 +23700,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             -6.3372790460e-5,   -1.2299719670e-4,    4.7627880120e-5,   -2.6759126920e-4,
@@ -23767,7 +23767,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.7697093430e-5,   -1.4639567230e-4,   -2.0641116860e-5,   -3.3819524110e-4,
@@ -23834,7 +23834,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(81, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(81, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.9098037230e-5,   -1.4594876850e-4,   -1.8179578550e-5,   -3.3822102710e-4,
@@ -23901,7 +23901,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             2.2040254410e-5,   -2.1634553560e-4,    7.0096226410e-5,    7.3784220150e-5,
@@ -23968,7 +23968,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             7.2972761700e-5,   -2.2263474240e-4,   -6.2228355090e-7,   -6.2067716500e-5,
@@ -24035,7 +24035,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             1.4027992440e-4,   -1.9637237710e-4,   -8.8150161900e-5,   -1.6862862690e-4,
@@ -24102,7 +24102,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(82, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(82, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             1.3988604770e-4,   -1.9609529410e-4,   -8.6859014120e-5,   -1.6964881800e-4,
@@ -24169,7 +24169,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 2);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 2);
 
         let expected_impulse_response = vec![
             1.0621565710e-6,   -4.0869426810e-6,    4.6370414570e-6,    1.2735723430e-5,
@@ -24247,7 +24247,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 3);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 3);
 
         let expected_impulse_response = vec![
             -1.5841082760e-7,   -5.6038620640e-6,    9.1733545560e-6,    1.9307104590e-5,
@@ -24325,7 +24325,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 15);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 15);
 
         let expected_impulse_response = vec![
             -1.1132793530e-7,   -6.8347617340e-6,    1.0110943550e-5,    2.4950997610e-5,
@@ -24404,7 +24404,7 @@ mod tests {
             weight: 2f32,
         });
 
-        let pm_output = design(128, JType::Hilbert, &bands, 16);
+        let pm_output = design_filter(128, FilterType::HilbertTransform, &bands, 16);
 
         let expected_impulse_response = vec![
             -1.2289892480e-7,   -6.8939666560e-6,    1.0129610020e-5,    2.5075252780e-5,

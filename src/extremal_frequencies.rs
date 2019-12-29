@@ -24,10 +24,6 @@ impl ExtremalFrequencies {
         self.dense_grid_indexes[self.num_coefficients] = grid.n_grid() as i64;
     }
 
-    pub fn get_iext(&self) -> [i64; 66] {
-        self.dense_grid_indexes
-    }
-
     pub fn get_grid_index(&self, grid_index: usize) -> i64 {
         self.dense_grid_indexes[grid_index]
     }

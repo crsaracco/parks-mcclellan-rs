@@ -5,7 +5,7 @@ use super::PI2;
 pub fn lagrange_x_coordinates(
     num_coefficients: usize,
     grid: &DenseGrid,
-    extremal_frequencies: &mut ExtremalFrequencies,
+    extremal_frequencies: &ExtremalFrequencies,
 ) -> [f64; 66] {
     let mut x = [0.0; 66];
     let last_coefficient_index = num_coefficients + 1;
@@ -37,7 +37,7 @@ pub fn deviation(
     num_coefficients: usize,
     grid: &DenseGrid,
     ad: &[f64; 66],
-    extremal_frequencies: &mut ExtremalFrequencies,
+    extremal_frequencies: &ExtremalFrequencies,
 ) -> f64 {
     let mut numerator = 0.0;
     let mut denominator = 0.0;
@@ -57,7 +57,7 @@ pub fn lagrange_y_coordinates(
     grid: &DenseGrid,
     nu: i32,
     deviation: f64,
-    extremal_frequencies: &mut ExtremalFrequencies,
+    extremal_frequencies: &ExtremalFrequencies,
 ) -> [f64; 66] {
     let mut y = [0.0; 66];
     let mut k = nu;
